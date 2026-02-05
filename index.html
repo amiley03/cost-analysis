@@ -316,7 +316,7 @@
 
         .pricing-row {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr;
             gap: 12px;
             padding: 8px 0;
             border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -830,8 +830,9 @@
                         <div>Product</div>
                         <div>Total Cost/Unit</div>
                         <div>Current Transfer</div>
+                        <div>Current Variance</div>
                         <div>Suggested Transfer</div>
-                        <div>Variance</div>
+                        <div>Target Variance</div>
                         <div>Status</div>
                     </div>
                     <div id="costco-products">
@@ -860,8 +861,9 @@
                         <div>Product</div>
                         <div>Total Cost/Unit</div>
                         <div>Current Transfer</div>
+                        <div>Current Variance</div>
                         <div>Suggested Transfer</div>
-                        <div>Variance</div>
+                        <div>Target Variance</div>
                         <div>Status</div>
                     </div>
                     <div id="safeway-products">
@@ -889,8 +891,9 @@
                         <div>Product</div>
                         <div>Total Cost/Unit</div>
                         <div>Current Transfer</div>
+                        <div>Current Variance</div>
                         <div>Suggested Transfer</div>
-                        <div>Variance</div>
+                        <div>Target Variance</div>
                         <div>Status</div>
                     </div>
                     <div id="cvs-products">
@@ -1500,12 +1503,16 @@
                 costcoHTML = '<div style="padding: 20px; color: #888; text-align: center;">No products selected. Use checkboxes above to add products.</div>';
             } else {
                 costcoProducts.forEach(p => {
+                    // Current variance = current transfer - total cost
+                    const currentVariance = p.transfer - p.cogs;
+                    const currentVarianceClass = currentVariance >= 0 ? 'positive' : 'negative';
+
                     // Suggested transfer is always the price needed to hit target GM%
                     const suggestedTransfer = p.cogs / (1 - mfgTargetGM);
-                    const variance = suggestedTransfer - p.transfer;
+                    const targetVariance = suggestedTransfer - p.transfer;
 
                     let flag, flagClass;
-                    if (variance > 0) {
+                    if (targetVariance > 0) {
                         // Need to raise price to hit target GM
                         flag = 'Raise Price';
                         flagClass = 'error';
@@ -1514,15 +1521,16 @@
                         flagClass = 'ok';
                     }
 
-                    const varianceClass = variance > 0 ? 'negative' : 'positive';
+                    const targetVarianceClass = targetVariance > 0 ? 'negative' : 'positive';
 
                     costcoHTML += `
                         <div class="pricing-row">
                             <div>${p.name}</div>
                             <div>${formatCurrencyDecimal(p.cogs)}</div>
                             <div>${formatCurrencyDecimal(p.transfer)}</div>
+                            <div class="${currentVarianceClass}">${currentVariance >= 0 ? '+' : ''}${formatCurrencyDecimal(currentVariance)}</div>
                             <div style="color: #22c55e;">${formatCurrencyDecimal(suggestedTransfer)}</div>
-                            <div class="${varianceClass}">${variance >= 0 ? '+' : ''}${formatCurrencyDecimal(variance)}</div>
+                            <div class="${targetVarianceClass}">${targetVariance >= 0 ? '+' : ''}${formatCurrencyDecimal(targetVariance)}</div>
                             <div><span class="flag ${flagClass}">${flag}</span></div>
                         </div>
                     `;
@@ -1538,12 +1546,16 @@
                 safewayHTML = '<div style="padding: 20px; color: #888; text-align: center;">No products selected. Use checkboxes above to add products.</div>';
             } else {
                 safewayProducts.forEach(p => {
+                    // Current variance = current transfer - total cost
+                    const currentVariance = p.transfer - p.cogs;
+                    const currentVarianceClass = currentVariance >= 0 ? 'positive' : 'negative';
+
                     // Suggested transfer is always the price needed to hit target GM%
                     const suggestedTransfer = p.cogs / (1 - mfgTargetGM);
-                    const variance = suggestedTransfer - p.transfer;
+                    const targetVariance = suggestedTransfer - p.transfer;
 
                     let flag, flagClass;
-                    if (variance > 0) {
+                    if (targetVariance > 0) {
                         // Need to raise price to hit target GM
                         flag = 'Raise Price';
                         flagClass = 'error';
@@ -1552,15 +1564,16 @@
                         flagClass = 'ok';
                     }
 
-                    const varianceClass = variance > 0 ? 'negative' : 'positive';
+                    const targetVarianceClass = targetVariance > 0 ? 'negative' : 'positive';
 
                     safewayHTML += `
                         <div class="pricing-row">
                             <div>${p.name}</div>
                             <div>${formatCurrencyDecimal(p.cogs)}</div>
                             <div>${formatCurrencyDecimal(p.transfer)}</div>
+                            <div class="${currentVarianceClass}">${currentVariance >= 0 ? '+' : ''}${formatCurrencyDecimal(currentVariance)}</div>
                             <div style="color: #22c55e;">${formatCurrencyDecimal(suggestedTransfer)}</div>
-                            <div class="${varianceClass}">${variance >= 0 ? '+' : ''}${formatCurrencyDecimal(variance)}</div>
+                            <div class="${targetVarianceClass}">${targetVariance >= 0 ? '+' : ''}${formatCurrencyDecimal(targetVariance)}</div>
                             <div><span class="flag ${flagClass}">${flag}</span></div>
                         </div>
                     `;
@@ -1576,12 +1589,16 @@
                 cvsHTML = '<div style="padding: 20px; color: #888; text-align: center;">No products selected. Use checkboxes above to add products.</div>';
             } else {
                 cvsProducts.forEach(p => {
+                    // Current variance = current transfer - total cost
+                    const currentVariance = p.transfer - p.cogs;
+                    const currentVarianceClass = currentVariance >= 0 ? 'positive' : 'negative';
+
                     // Suggested transfer is always the price needed to hit target GM%
                     const suggestedTransfer = p.cogs / (1 - mfgTargetGM);
-                    const variance = suggestedTransfer - p.transfer;
+                    const targetVariance = suggestedTransfer - p.transfer;
 
                     let flag, flagClass;
-                    if (variance > 0) {
+                    if (targetVariance > 0) {
                         // Need to raise price to hit target GM
                         flag = 'Raise Price';
                         flagClass = 'error';
@@ -1590,15 +1607,16 @@
                         flagClass = 'ok';
                     }
 
-                    const varianceClass = variance > 0 ? 'negative' : 'positive';
+                    const targetVarianceClass = targetVariance > 0 ? 'negative' : 'positive';
 
                     cvsHTML += `
                         <div class="pricing-row">
                             <div>${p.name}</div>
                             <div>${formatCurrencyDecimal(p.cogs)}</div>
                             <div>${formatCurrencyDecimal(p.transfer)}</div>
+                            <div class="${currentVarianceClass}">${currentVariance >= 0 ? '+' : ''}${formatCurrencyDecimal(currentVariance)}</div>
                             <div style="color: #22c55e;">${formatCurrencyDecimal(suggestedTransfer)}</div>
-                            <div class="${varianceClass}">${variance >= 0 ? '+' : ''}${formatCurrencyDecimal(variance)}</div>
+                            <div class="${targetVarianceClass}">${targetVariance >= 0 ? '+' : ''}${formatCurrencyDecimal(targetVariance)}</div>
                             <div><span class="flag ${flagClass}">${flag}</span></div>
                         </div>
                     `;
