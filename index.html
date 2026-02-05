@@ -793,31 +793,31 @@
                                 </th>
                                 <th>
                                     <span class="tooltip-header">
-                                        Revenue/lb
+                                        Revenue/Unit
                                         <span class="tooltip-icon">?</span>
                                         <span class="tooltip-content">
-                                            Revenue earned per pound of product sold.
-                                            <span class="tooltip-formula">Transfer Price ÷ (Size oz ÷ 16)</span>
+                                            Transfer price charged per unit (bag/tray).
+                                            <span class="tooltip-formula">= Transfer Price</span>
                                         </span>
                                     </span>
                                 </th>
                                 <th>
                                     <span class="tooltip-header">
-                                        Cost/lb
+                                        Cost/Unit
                                         <span class="tooltip-icon">?</span>
                                         <span class="tooltip-content">
-                                            Total cost per pound including meat, packaging, labor, overhead, freight.
-                                            <span class="tooltip-formula">Total Cost/Unit ÷ (Size oz ÷ 16)</span>
+                                            Total cost per unit including meat, packaging, labor, overhead, freight.
+                                            <span class="tooltip-formula">= Total Cost (from Excel)</span>
                                         </span>
                                     </span>
                                 </th>
                                 <th>
                                     <span class="tooltip-header">
-                                        Margin/lb
+                                        Margin/Unit
                                         <span class="tooltip-icon">?</span>
                                         <span class="tooltip-content">
-                                            Profit (or loss) per pound of product sold.
-                                            <span class="tooltip-formula">Revenue/lb − Cost/lb</span>
+                                            Profit (or loss) per unit sold.
+                                            <span class="tooltip-formula">Revenue/Unit − Cost/Unit</span>
                                         </span>
                                     </span>
                                 </th>
@@ -827,7 +827,7 @@
                                         <span class="tooltip-icon">?</span>
                                         <span class="tooltip-content">
                                             Gross margin as a percentage of revenue.
-                                            <span class="tooltip-formula">Margin/lb ÷ Revenue/lb × 100</span>
+                                            <span class="tooltip-formula">Margin/Unit ÷ Revenue/Unit × 100</span>
                                         </span>
                                     </span>
                                 </th>
@@ -1295,31 +1295,28 @@
             recalculate();
         }
 
-        // Calculate per-size metrics
+        // Calculate per-size metrics (all values per unit)
         // totalCost includes all costs (meat, packaging, labor, overhead, freight) as fixed per unit
         function calculateSizeMetrics() {
             return PRODUCTS.map((p, i) => {
-                const lbPerUnit = p.size / 16;
+                // Revenue per unit = transfer price
+                const revenuePerUnit = p.transfer;
 
-                // Revenue per lb = transfer price / lbs per unit
-                const revenuePerLb = p.transfer / lbPerUnit;
+                // Cost per unit = totalCost (includes all fixed costs)
+                const costPerUnit = p.totalCost;
 
-                // Cost per lb = total cost per unit / lbs per unit
-                // totalCost already includes all fixed costs (L/O/F)
-                const costPerLb = p.totalCost / lbPerUnit;
-
-                // Margin per lb
-                const marginPerLb = revenuePerLb - costPerLb;
+                // Margin per unit
+                const marginPerUnit = revenuePerUnit - costPerUnit;
 
                 // Margin %
-                const marginPct = revenuePerLb > 0 ? marginPerLb / revenuePerLb : 0;
+                const marginPct = revenuePerUnit > 0 ? marginPerUnit / revenuePerUnit : 0;
 
                 return {
                     size: p.size,
                     mixPct: currentMix[i],
-                    revenuePerLb,
-                    costPerLb,
-                    marginPerLb,
+                    revenuePerUnit,
+                    costPerUnit,
+                    marginPerUnit,
                     marginPct
                 };
             });
@@ -1333,8 +1330,8 @@
             let bestMarginSize = null;
             let bestMarginValue = -Infinity;
             sizeMetrics.forEach(m => {
-                if (m.mixPct > 0 && m.marginPerLb > bestMarginValue) {
-                    bestMarginValue = m.marginPerLb;
+                if (m.mixPct > 0 && m.marginPerUnit > bestMarginValue) {
+                    bestMarginValue = m.marginPerUnit;
                     bestMarginSize = m.size;
                 }
             });
@@ -1342,7 +1339,7 @@
             // Update best size indicator
             const bestIndicator = document.getElementById('bestSizeIndicator');
             if (bestMarginSize !== null) {
-                bestIndicator.textContent = `Best Size: ${bestMarginSize}oz ($${bestMarginValue.toFixed(2)}/lb margin)`;
+                bestIndicator.textContent = `Best Size: ${bestMarginSize}oz ($${bestMarginValue.toFixed(2)}/unit margin)`;
             } else {
                 bestIndicator.textContent = 'Best Size: --';
             }
@@ -1358,10 +1355,10 @@
                             <span class="mix-value">${m.mixPct.toFixed(1)}%</span>
                         </div>
                     </td>
-                    <td>${formatCurrencyDecimal(m.revenuePerLb)}</td>
-                    <td>${formatCurrencyDecimal(m.costPerLb)}</td>
-                    <td class="${m.marginPerLb >= 0 ? 'positive' : 'negative'}">${formatCurrencyDecimal(m.marginPerLb)}</td>
-                    <td class="${m.marginPct >= 0.2 ? 'positive' : ''}">${formatPercent(m.marginPct)}</td>
+                    <td>${formatCurrencyDecimal(m.revenuePerUnit)}</td>
+                    <td>${formatCurrencyDecimal(m.costPerUnit)}</td>
+                    <td class="${m.marginPerUnit >= 0 ? 'positive' : 'negative'}">${formatCurrencyDecimal(m.marginPerUnit)}</td>
+                    <td class="${m.marginPct >= 0 ? 'positive' : 'negative'}">${formatPercent(m.marginPct)}</td>
                 </tr>
             `).join('');
         }
