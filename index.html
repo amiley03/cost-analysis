@@ -316,7 +316,7 @@
 
         .pricing-row {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
             gap: 12px;
             padding: 8px 0;
             border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -829,8 +829,9 @@
                     <div class="pricing-row header">
                         <div>Product</div>
                         <div>Total Cost/Unit</div>
-                        <div>Target SRP</div>
+                        <div>Current Transfer</div>
                         <div>Suggested Transfer</div>
+                        <div>Variance</div>
                         <div>Status</div>
                     </div>
                     <div id="costco-products">
@@ -858,8 +859,9 @@
                     <div class="pricing-row header">
                         <div>Product</div>
                         <div>Total Cost/Unit</div>
-                        <div>Target SRP</div>
+                        <div>Current Transfer</div>
                         <div>Suggested Transfer</div>
+                        <div>Variance</div>
                         <div>Status</div>
                     </div>
                     <div id="safeway-products">
@@ -886,8 +888,9 @@
                     <div class="pricing-row header">
                         <div>Product</div>
                         <div>Total Cost/Unit</div>
-                        <div>Target SRP</div>
+                        <div>Current Transfer</div>
                         <div>Suggested Transfer</div>
+                        <div>Variance</div>
                         <div>Status</div>
                     </div>
                     <div id="cvs-products">
@@ -952,47 +955,47 @@
         // Current mix percentages (editable, stored as 0-100 values)
         let currentMix = PRODUCTS.map(p => p.defaultMixPct);
 
-        // Products for transfer pricing (COGS from 2025 Costing Summary_3.xlsx Combined sheet)
+        // Products for transfer pricing (costs and transfer prices from 2025 Costing Summary_3.xlsx Combined sheet)
         const PRICING_PRODUCTS = [
             // Original Beef
-            { id: 'ob-2.5', name: 'Original Beef 2.5oz Bag', flavor: 'Original Beef', size: 2.5, type: 'Bag', cogs: 5.08 },
-            { id: 'ob-6', name: 'Original Beef 6oz Bag', flavor: 'Original Beef', size: 6, type: 'Bag', cogs: 6.70 },
-            { id: 'ob-12', name: 'Original Beef 12oz Bag', flavor: 'Original Beef', size: 12, type: 'Bag', cogs: 10.22 },
-            { id: 'ob-14', name: 'Original Beef 14oz Bag', flavor: 'Original Beef', size: 14, type: 'Bag', cogs: 10.43 },
-            { id: 'ob-14t', name: 'Original Beef 14oz Tray', flavor: 'Original Beef', size: 14, type: 'Tray', cogs: 10.64 },
+            { id: 'ob-2.5', name: 'Original Beef 2.5oz Bag', flavor: 'Original Beef', size: 2.5, type: 'Bag', cogs: 5.08, transfer: 2.75 },
+            { id: 'ob-6', name: 'Original Beef 6oz Bag', flavor: 'Original Beef', size: 6, type: 'Bag', cogs: 6.70, transfer: 5.25 },
+            { id: 'ob-12', name: 'Original Beef 12oz Bag', flavor: 'Original Beef', size: 12, type: 'Bag', cogs: 10.22, transfer: 9.00 },
+            { id: 'ob-14', name: 'Original Beef 14oz Bag', flavor: 'Original Beef', size: 14, type: 'Bag', cogs: 10.43, transfer: 11.00 },
+            { id: 'ob-14t', name: 'Original Beef 14oz Tray', flavor: 'Original Beef', size: 14, type: 'Tray', cogs: 10.64, transfer: 11.00 },
             // Sweet Beef
-            { id: 'sb-2.5', name: 'Sweet Beef 2.5oz Bag', flavor: 'Sweet Beef', size: 2.5, type: 'Bag', cogs: 5.03 },
-            { id: 'sb-6', name: 'Sweet Beef 6oz Bag', flavor: 'Sweet Beef', size: 6, type: 'Bag', cogs: 8.36 },
-            { id: 'sb-8', name: 'Sweet Beef 8oz Bag', flavor: 'Sweet Beef', size: 8, type: 'Bag', cogs: 7.56 },
-            { id: 'sb-12', name: 'Sweet Beef 12oz Bag', flavor: 'Sweet Beef', size: 12, type: 'Bag', cogs: 10.03 },
-            { id: 'sb-14', name: 'Sweet Beef 14oz Bag', flavor: 'Sweet Beef', size: 14, type: 'Bag', cogs: 10.11 },
-            { id: 'sb-14t', name: 'Sweet Beef 14oz Tray', flavor: 'Sweet Beef', size: 14, type: 'Tray', cogs: 10.31 },
+            { id: 'sb-2.5', name: 'Sweet Beef 2.5oz Bag', flavor: 'Sweet Beef', size: 2.5, type: 'Bag', cogs: 5.03, transfer: 2.75 },
+            { id: 'sb-6', name: 'Sweet Beef 6oz Bag', flavor: 'Sweet Beef', size: 6, type: 'Bag', cogs: 8.36, transfer: 5.25 },
+            { id: 'sb-8', name: 'Sweet Beef 8oz Bag', flavor: 'Sweet Beef', size: 8, type: 'Bag', cogs: 7.56, transfer: 7.25 },
+            { id: 'sb-12', name: 'Sweet Beef 12oz Bag', flavor: 'Sweet Beef', size: 12, type: 'Bag', cogs: 10.03, transfer: 9.00 },
+            { id: 'sb-14', name: 'Sweet Beef 14oz Bag', flavor: 'Sweet Beef', size: 14, type: 'Bag', cogs: 10.11, transfer: 11.00 },
+            { id: 'sb-14t', name: 'Sweet Beef 14oz Tray', flavor: 'Sweet Beef', size: 14, type: 'Tray', cogs: 10.31, transfer: 11.00 },
             // Spicy Beef
-            { id: 'spb-2.5', name: 'Spicy Beef 2.5oz Bag', flavor: 'Spicy Beef', size: 2.5, type: 'Bag', cogs: 5.08 },
-            { id: 'spb-6', name: 'Spicy Beef 6oz Bag', flavor: 'Spicy Beef', size: 6, type: 'Bag', cogs: 6.70 },
-            { id: 'spb-12', name: 'Spicy Beef 12oz Bag', flavor: 'Spicy Beef', size: 12, type: 'Bag', cogs: 10.03 },
-            { id: 'spb-14', name: 'Spicy Beef 14oz Bag', flavor: 'Spicy Beef', size: 14, type: 'Bag', cogs: 10.36 },
-            { id: 'spb-14t', name: 'Spicy Beef 14oz Tray', flavor: 'Spicy Beef', size: 14, type: 'Tray', cogs: 10.56 },
+            { id: 'spb-2.5', name: 'Spicy Beef 2.5oz Bag', flavor: 'Spicy Beef', size: 2.5, type: 'Bag', cogs: 5.08, transfer: 2.75 },
+            { id: 'spb-6', name: 'Spicy Beef 6oz Bag', flavor: 'Spicy Beef', size: 6, type: 'Bag', cogs: 6.70, transfer: 5.25 },
+            { id: 'spb-12', name: 'Spicy Beef 12oz Bag', flavor: 'Spicy Beef', size: 12, type: 'Bag', cogs: 10.03, transfer: 9.00 },
+            { id: 'spb-14', name: 'Spicy Beef 14oz Bag', flavor: 'Spicy Beef', size: 14, type: 'Bag', cogs: 10.36, transfer: 11.00 },
+            { id: 'spb-14t', name: 'Spicy Beef 14oz Tray', flavor: 'Spicy Beef', size: 14, type: 'Tray', cogs: 10.56, transfer: 11.00 },
             // Sweet+Spicy Beef
-            { id: 'ssb-2.5', name: 'Sweet+Spicy Beef 2.5oz Bag', flavor: 'Sweet+Spicy Beef', size: 2.5, type: 'Bag', cogs: 5.05 },
-            { id: 'ssb-6', name: 'Sweet+Spicy Beef 6oz Bag', flavor: 'Sweet+Spicy Beef', size: 6, type: 'Bag', cogs: 6.58 },
-            { id: 'ssb-12', name: 'Sweet+Spicy Beef 12oz Bag', flavor: 'Sweet+Spicy Beef', size: 12, type: 'Bag', cogs: 10.03 },
-            { id: 'ssb-14', name: 'Sweet+Spicy Beef 14oz Bag', flavor: 'Sweet+Spicy Beef', size: 14, type: 'Bag', cogs: 10.11 },
-            { id: 'ssb-14t', name: 'Sweet+Spicy Beef 14oz Tray', flavor: 'Sweet+Spicy Beef', size: 14, type: 'Tray', cogs: 10.31 },
+            { id: 'ssb-2.5', name: 'Sweet+Spicy Beef 2.5oz Bag', flavor: 'Sweet+Spicy Beef', size: 2.5, type: 'Bag', cogs: 5.05, transfer: 2.75 },
+            { id: 'ssb-6', name: 'Sweet+Spicy Beef 6oz Bag', flavor: 'Sweet+Spicy Beef', size: 6, type: 'Bag', cogs: 6.58, transfer: 5.25 },
+            { id: 'ssb-12', name: 'Sweet+Spicy Beef 12oz Bag', flavor: 'Sweet+Spicy Beef', size: 12, type: 'Bag', cogs: 10.03, transfer: 9.00 },
+            { id: 'ssb-14', name: 'Sweet+Spicy Beef 14oz Bag', flavor: 'Sweet+Spicy Beef', size: 14, type: 'Bag', cogs: 10.11, transfer: 11.00 },
+            { id: 'ssb-14t', name: 'Sweet+Spicy Beef 14oz Tray', flavor: 'Sweet+Spicy Beef', size: 14, type: 'Tray', cogs: 10.31, transfer: 11.00 },
             // Grilled Pork / Island
-            { id: 'gp-2.5', name: 'Grilled Pork 2.5oz Bag', flavor: 'Grilled Pork', size: 2.5, type: 'Bag', cogs: 4.64 },
-            { id: 'gp-6', name: 'Grilled Pork 6oz Bag', flavor: 'Grilled Pork', size: 6, type: 'Bag', cogs: 5.24 },
-            { id: 'gp-12', name: 'Grilled Pork 12oz Bag', flavor: 'Grilled Pork', size: 12, type: 'Bag', cogs: 7.25 },
-            { id: 'gp-14', name: 'Grilled Pork 14oz Bag', flavor: 'Grilled Pork', size: 14, type: 'Bag', cogs: 6.95 },
-            { id: 'gp-14t', name: 'Grilled Pork 14oz Tray', flavor: 'Grilled Pork', size: 14, type: 'Tray', cogs: 7.15 },
+            { id: 'gp-2.5', name: 'Grilled Pork 2.5oz Bag', flavor: 'Grilled Pork', size: 2.5, type: 'Bag', cogs: 4.64, transfer: 2.75 },
+            { id: 'gp-6', name: 'Grilled Pork 6oz Bag', flavor: 'Grilled Pork', size: 6, type: 'Bag', cogs: 5.24, transfer: 5.25 },
+            { id: 'gp-12', name: 'Grilled Pork 12oz Bag', flavor: 'Grilled Pork', size: 12, type: 'Bag', cogs: 7.25, transfer: 9.00 },
+            { id: 'gp-14', name: 'Grilled Pork 14oz Bag', flavor: 'Grilled Pork', size: 14, type: 'Bag', cogs: 6.95, transfer: 9.25 },
+            { id: 'gp-14t', name: 'Grilled Pork 14oz Tray', flavor: 'Grilled Pork', size: 14, type: 'Tray', cogs: 7.15, transfer: 9.25 },
             // Grilled Spicy Pork
-            { id: 'gsp-2.5', name: 'Grilled Spicy Pork 2.5oz Bag', flavor: 'Grilled Spicy Pork', size: 2.5, type: 'Bag', cogs: 4.50 },
-            { id: 'gsp-6', name: 'Grilled Spicy Pork 6oz Bag', flavor: 'Grilled Spicy Pork', size: 6, type: 'Bag', cogs: 5.28 },
-            { id: 'gsp-14', name: 'Grilled Spicy Pork 14oz Bag', flavor: 'Grilled Spicy Pork', size: 14, type: 'Bag', cogs: 6.98 },
-            { id: 'gsp-14t', name: 'Grilled Spicy Pork 14oz Tray', flavor: 'Grilled Spicy Pork', size: 14, type: 'Tray', cogs: 7.19 },
+            { id: 'gsp-2.5', name: 'Grilled Spicy Pork 2.5oz Bag', flavor: 'Grilled Spicy Pork', size: 2.5, type: 'Bag', cogs: 4.50, transfer: 2.75 },
+            { id: 'gsp-6', name: 'Grilled Spicy Pork 6oz Bag', flavor: 'Grilled Spicy Pork', size: 6, type: 'Bag', cogs: 5.28, transfer: 5.25 },
+            { id: 'gsp-14', name: 'Grilled Spicy Pork 14oz Bag', flavor: 'Grilled Spicy Pork', size: 14, type: 'Bag', cogs: 6.98, transfer: 9.25 },
+            { id: 'gsp-14t', name: 'Grilled Spicy Pork 14oz Tray', flavor: 'Grilled Spicy Pork', size: 14, type: 'Tray', cogs: 7.19, transfer: 9.25 },
             // Grilled Beef
-            { id: 'gb-2.5', name: 'Grilled Beef 2.5oz Bag', flavor: 'Grilled Beef', size: 2.5, type: 'Bag', cogs: 5.03 },
-            { id: 'gb-2.85', name: 'Grilled Beef 2.85oz Bag', flavor: 'Grilled Beef', size: 2.85, type: 'Bag', cogs: 5.19 }
+            { id: 'gb-2.5', name: 'Grilled Beef 2.5oz Bag', flavor: 'Grilled Beef', size: 2.5, type: 'Bag', cogs: 5.03, transfer: 2.75 },
+            { id: 'gb-2.85', name: 'Grilled Beef 2.85oz Bag', flavor: 'Grilled Beef', size: 2.85, type: 'Bag', cogs: 5.19, transfer: 2.75 }
         ];
 
         // Channel product selections (which products are enabled for each retailer)
@@ -1450,27 +1453,29 @@
                 costcoHTML = '<div style="padding: 20px; color: #888; text-align: center;">No products selected. Use checkboxes above to add products.</div>';
             } else {
                 costcoProducts.forEach(p => {
-                    const targetSRP = Math.ceil(p.size * costcoPerOz * 100) / 100;
-                    const maxMfgPrice = targetSRP / (1 + costcoMarkup);
                     // Suggested transfer is always the price needed to hit target GM%
                     const suggestedTransfer = p.cogs / (1 - mfgTargetGM);
+                    const variance = suggestedTransfer - p.transfer;
 
                     let flag, flagClass;
-                    if (suggestedTransfer > maxMfgPrice) {
-                        // Can't hit target GM at this SRP
-                        flag = 'SRP too low';
+                    if (variance > 0) {
+                        // Need to raise price to hit target GM
+                        flag = 'Raise Price';
                         flagClass = 'error';
                     } else {
                         flag = 'OK';
                         flagClass = 'ok';
                     }
 
+                    const varianceClass = variance > 0 ? 'negative' : 'positive';
+
                     costcoHTML += `
                         <div class="pricing-row">
                             <div>${p.name}</div>
                             <div>${formatCurrencyDecimal(p.cogs)}</div>
-                            <div>${formatCurrencyDecimal(targetSRP)}</div>
+                            <div>${formatCurrencyDecimal(p.transfer)}</div>
                             <div style="color: #22c55e;">${formatCurrencyDecimal(suggestedTransfer)}</div>
+                            <div class="${varianceClass}">${variance >= 0 ? '+' : ''}${formatCurrencyDecimal(variance)}</div>
                             <div><span class="flag ${flagClass}">${flag}</span></div>
                         </div>
                     `;
@@ -1486,28 +1491,29 @@
                 safewayHTML = '<div style="padding: 20px; color: #888; text-align: center;">No products selected. Use checkboxes above to add products.</div>';
             } else {
                 safewayProducts.forEach(p => {
-                    const targetSRP = Math.ceil(p.size * safewayPerOz * 100) / 100;
-                    const retailCost = targetSRP * (1 - safewayGM);
-                    const maxTransfer = retailCost * (1 - distributorGM);
                     // Suggested transfer is always the price needed to hit target GM%
                     const suggestedTransfer = p.cogs / (1 - mfgTargetGM);
+                    const variance = suggestedTransfer - p.transfer;
 
                     let flag, flagClass;
-                    if (suggestedTransfer > maxTransfer) {
-                        // Can't hit target GM at this SRP
-                        flag = 'SRP too low';
+                    if (variance > 0) {
+                        // Need to raise price to hit target GM
+                        flag = 'Raise Price';
                         flagClass = 'error';
                     } else {
                         flag = 'OK';
                         flagClass = 'ok';
                     }
 
+                    const varianceClass = variance > 0 ? 'negative' : 'positive';
+
                     safewayHTML += `
                         <div class="pricing-row">
                             <div>${p.name}</div>
                             <div>${formatCurrencyDecimal(p.cogs)}</div>
-                            <div>${formatCurrencyDecimal(targetSRP)}</div>
+                            <div>${formatCurrencyDecimal(p.transfer)}</div>
                             <div style="color: #22c55e;">${formatCurrencyDecimal(suggestedTransfer)}</div>
+                            <div class="${varianceClass}">${variance >= 0 ? '+' : ''}${formatCurrencyDecimal(variance)}</div>
                             <div><span class="flag ${flagClass}">${flag}</span></div>
                         </div>
                     `;
@@ -1523,28 +1529,29 @@
                 cvsHTML = '<div style="padding: 20px; color: #888; text-align: center;">No products selected. Use checkboxes above to add products.</div>';
             } else {
                 cvsProducts.forEach(p => {
-                    const targetSRP = Math.ceil(p.size * cvsPerOz * 100) / 100;
-                    const retailCost = targetSRP * (1 - cvsGM);
-                    const maxTransfer = retailCost * (1 - distributorGM);
                     // Suggested transfer is always the price needed to hit target GM%
                     const suggestedTransfer = p.cogs / (1 - mfgTargetGM);
+                    const variance = suggestedTransfer - p.transfer;
 
                     let flag, flagClass;
-                    if (suggestedTransfer > maxTransfer) {
-                        // Can't hit target GM at this SRP
-                        flag = 'SRP too low';
+                    if (variance > 0) {
+                        // Need to raise price to hit target GM
+                        flag = 'Raise Price';
                         flagClass = 'error';
                     } else {
                         flag = 'OK';
                         flagClass = 'ok';
                     }
 
+                    const varianceClass = variance > 0 ? 'negative' : 'positive';
+
                     cvsHTML += `
                         <div class="pricing-row">
                             <div>${p.name}</div>
                             <div>${formatCurrencyDecimal(p.cogs)}</div>
-                            <div>${formatCurrencyDecimal(targetSRP)}</div>
+                            <div>${formatCurrencyDecimal(p.transfer)}</div>
                             <div style="color: #22c55e;">${formatCurrencyDecimal(suggestedTransfer)}</div>
+                            <div class="${varianceClass}">${variance >= 0 ? '+' : ''}${formatCurrencyDecimal(variance)}</div>
                             <div><span class="flag ${flagClass}">${flag}</span></div>
                         </div>
                     `;
