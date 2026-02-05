@@ -528,6 +528,89 @@
         .monthly-simple th, .monthly-simple td {
             padding: 10px 12px;
         }
+
+        /* Product Selector Styles */
+        .product-selector {
+            margin-bottom: 20px;
+            padding: 16px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .product-selector h4 {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .flavor-group {
+            margin-bottom: 12px;
+        }
+
+        .flavor-group-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a9eff;
+            margin-bottom: 6px;
+        }
+
+        .product-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .product-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .product-checkbox:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .product-checkbox input {
+            cursor: pointer;
+        }
+
+        .product-checkbox.selected {
+            background: rgba(74, 158, 255, 0.2);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+        }
+
+        .select-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .select-btn {
+            padding: 4px 10px;
+            font-size: 11px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .select-btn:hover {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -731,6 +814,17 @@
             <!-- Costco Pricing -->
             <div class="card">
                 <h2>Costco (Direct)</h2>
+                <div class="product-selector" id="costco-selector">
+                    <h4>Select Products for Costco</h4>
+                    <div id="costco-checkboxes">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div class="select-actions">
+                        <button class="select-btn" onclick="selectAllChannel('costco')">Select All</button>
+                        <button class="select-btn" onclick="clearAllChannel('costco')">Clear All</button>
+                        <button class="select-btn" onclick="selectBySize('costco', 14)">14oz Only</button>
+                    </div>
+                </div>
                 <div class="channel-card">
                     <div class="pricing-row header">
                         <div>Product</div>
@@ -748,6 +842,18 @@
             <!-- Safeway Pricing -->
             <div class="card">
                 <h2>Safeway (via Distributor)</h2>
+                <div class="product-selector" id="safeway-selector">
+                    <h4>Select Products for Safeway</h4>
+                    <div id="safeway-checkboxes">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div class="select-actions">
+                        <button class="select-btn" onclick="selectAllChannel('safeway')">Select All</button>
+                        <button class="select-btn" onclick="clearAllChannel('safeway')">Clear All</button>
+                        <button class="select-btn" onclick="selectBySize('safeway', 2.5)">2.5oz Only</button>
+                        <button class="select-btn" onclick="selectBySize('safeway', 6)">6oz Only</button>
+                    </div>
+                </div>
                 <div class="channel-card">
                     <div class="pricing-row header">
                         <div>Product</div>
@@ -765,6 +871,17 @@
             <!-- CVS Pricing -->
             <div class="card">
                 <h2>CVS (via Distributor)</h2>
+                <div class="product-selector" id="cvs-selector">
+                    <h4>Select Products for CVS</h4>
+                    <div id="cvs-checkboxes">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div class="select-actions">
+                        <button class="select-btn" onclick="selectAllChannel('cvs')">Select All</button>
+                        <button class="select-btn" onclick="clearAllChannel('cvs')">Clear All</button>
+                        <button class="select-btn" onclick="selectBySize('cvs', 2.5)">2.5oz Only</button>
+                    </div>
+                </div>
                 <div class="channel-card">
                     <div class="pricing-row header">
                         <div>Product</div>
@@ -837,18 +954,53 @@
 
         // Products for transfer pricing (COGS from 2025 Costing Summary_3.xlsx Combined sheet)
         const PRICING_PRODUCTS = [
-            { name: 'Original Beef 2.5oz Bag', size: 2.5, cogs: 5.08 },
-            { name: 'Original Beef 6oz Bag', size: 6, cogs: 6.70 },
-            { name: 'Original Beef 12oz Bag', size: 12, cogs: 10.22 },
-            { name: 'Original Beef 14oz Bag', size: 14, cogs: 10.43 },
-            { name: 'Original Beef 14oz Tray', size: 14, cogs: 10.64 },
-            { name: 'Sweet Beef 2.5oz Bag', size: 2.5, cogs: 5.03 },
-            { name: 'Sweet Beef 6oz Bag', size: 6, cogs: 8.36 },
-            { name: 'Sweet Beef 8oz Bag', size: 8, cogs: 7.56 },
-            { name: 'Sweet Beef 12oz Bag', size: 12, cogs: 10.03 },
-            { name: 'Sweet Beef 14oz Bag', size: 14, cogs: 10.11 },
-            { name: 'Sweet Beef 14oz Tray', size: 14, cogs: 10.31 }
+            // Original Beef
+            { id: 'ob-2.5', name: 'Original Beef 2.5oz Bag', flavor: 'Original Beef', size: 2.5, type: 'Bag', cogs: 5.08 },
+            { id: 'ob-6', name: 'Original Beef 6oz Bag', flavor: 'Original Beef', size: 6, type: 'Bag', cogs: 6.70 },
+            { id: 'ob-12', name: 'Original Beef 12oz Bag', flavor: 'Original Beef', size: 12, type: 'Bag', cogs: 10.22 },
+            { id: 'ob-14', name: 'Original Beef 14oz Bag', flavor: 'Original Beef', size: 14, type: 'Bag', cogs: 10.43 },
+            { id: 'ob-14t', name: 'Original Beef 14oz Tray', flavor: 'Original Beef', size: 14, type: 'Tray', cogs: 10.64 },
+            // Sweet Beef
+            { id: 'sb-2.5', name: 'Sweet Beef 2.5oz Bag', flavor: 'Sweet Beef', size: 2.5, type: 'Bag', cogs: 5.03 },
+            { id: 'sb-6', name: 'Sweet Beef 6oz Bag', flavor: 'Sweet Beef', size: 6, type: 'Bag', cogs: 8.36 },
+            { id: 'sb-8', name: 'Sweet Beef 8oz Bag', flavor: 'Sweet Beef', size: 8, type: 'Bag', cogs: 7.56 },
+            { id: 'sb-12', name: 'Sweet Beef 12oz Bag', flavor: 'Sweet Beef', size: 12, type: 'Bag', cogs: 10.03 },
+            { id: 'sb-14', name: 'Sweet Beef 14oz Bag', flavor: 'Sweet Beef', size: 14, type: 'Bag', cogs: 10.11 },
+            { id: 'sb-14t', name: 'Sweet Beef 14oz Tray', flavor: 'Sweet Beef', size: 14, type: 'Tray', cogs: 10.31 },
+            // Spicy Beef
+            { id: 'spb-2.5', name: 'Spicy Beef 2.5oz Bag', flavor: 'Spicy Beef', size: 2.5, type: 'Bag', cogs: 5.08 },
+            { id: 'spb-6', name: 'Spicy Beef 6oz Bag', flavor: 'Spicy Beef', size: 6, type: 'Bag', cogs: 6.70 },
+            { id: 'spb-12', name: 'Spicy Beef 12oz Bag', flavor: 'Spicy Beef', size: 12, type: 'Bag', cogs: 10.03 },
+            { id: 'spb-14', name: 'Spicy Beef 14oz Bag', flavor: 'Spicy Beef', size: 14, type: 'Bag', cogs: 10.36 },
+            { id: 'spb-14t', name: 'Spicy Beef 14oz Tray', flavor: 'Spicy Beef', size: 14, type: 'Tray', cogs: 10.56 },
+            // Sweet+Spicy Beef
+            { id: 'ssb-2.5', name: 'Sweet+Spicy Beef 2.5oz Bag', flavor: 'Sweet+Spicy Beef', size: 2.5, type: 'Bag', cogs: 5.05 },
+            { id: 'ssb-6', name: 'Sweet+Spicy Beef 6oz Bag', flavor: 'Sweet+Spicy Beef', size: 6, type: 'Bag', cogs: 6.58 },
+            { id: 'ssb-12', name: 'Sweet+Spicy Beef 12oz Bag', flavor: 'Sweet+Spicy Beef', size: 12, type: 'Bag', cogs: 10.03 },
+            { id: 'ssb-14', name: 'Sweet+Spicy Beef 14oz Bag', flavor: 'Sweet+Spicy Beef', size: 14, type: 'Bag', cogs: 10.11 },
+            { id: 'ssb-14t', name: 'Sweet+Spicy Beef 14oz Tray', flavor: 'Sweet+Spicy Beef', size: 14, type: 'Tray', cogs: 10.31 },
+            // Grilled Pork / Island
+            { id: 'gp-2.5', name: 'Grilled Pork 2.5oz Bag', flavor: 'Grilled Pork', size: 2.5, type: 'Bag', cogs: 4.64 },
+            { id: 'gp-6', name: 'Grilled Pork 6oz Bag', flavor: 'Grilled Pork', size: 6, type: 'Bag', cogs: 5.24 },
+            { id: 'gp-12', name: 'Grilled Pork 12oz Bag', flavor: 'Grilled Pork', size: 12, type: 'Bag', cogs: 7.25 },
+            { id: 'gp-14', name: 'Grilled Pork 14oz Bag', flavor: 'Grilled Pork', size: 14, type: 'Bag', cogs: 6.95 },
+            { id: 'gp-14t', name: 'Grilled Pork 14oz Tray', flavor: 'Grilled Pork', size: 14, type: 'Tray', cogs: 7.15 },
+            // Grilled Spicy Pork
+            { id: 'gsp-2.5', name: 'Grilled Spicy Pork 2.5oz Bag', flavor: 'Grilled Spicy Pork', size: 2.5, type: 'Bag', cogs: 4.50 },
+            { id: 'gsp-6', name: 'Grilled Spicy Pork 6oz Bag', flavor: 'Grilled Spicy Pork', size: 6, type: 'Bag', cogs: 5.28 },
+            { id: 'gsp-14', name: 'Grilled Spicy Pork 14oz Bag', flavor: 'Grilled Spicy Pork', size: 14, type: 'Bag', cogs: 6.98 },
+            { id: 'gsp-14t', name: 'Grilled Spicy Pork 14oz Tray', flavor: 'Grilled Spicy Pork', size: 14, type: 'Tray', cogs: 7.19 },
+            // Grilled Beef
+            { id: 'gb-2.5', name: 'Grilled Beef 2.5oz Bag', flavor: 'Grilled Beef', size: 2.5, type: 'Bag', cogs: 5.03 },
+            { id: 'gb-2.85', name: 'Grilled Beef 2.85oz Bag', flavor: 'Grilled Beef', size: 2.85, type: 'Bag', cogs: 5.19 }
         ];
+
+        // Channel product selections (which products are enabled for each retailer)
+        const channelSelections = {
+            costco: new Set(['ob-14', 'ob-14t', 'sb-14', 'sb-14t']),  // Default: 14oz products for Costco
+            safeway: new Set(['ob-2.5', 'ob-6', 'sb-2.5', 'sb-6']),   // Default: smaller sizes for grocery
+            cvs: new Set(['ob-2.5', 'sb-2.5', 'gb-2.5'])              // Default: 2.5oz for convenience
+        };
 
         // Months with default 14oz multipliers
         const MONTHS = [
@@ -874,6 +1026,7 @@
                 document.getElementById('main-app').style.display = 'block';
                 sessionStorage.setItem('authenticated', 'true');
                 recalculate();
+                initProductSelectors();
                 recalculatePricing();
             } else {
                 document.getElementById('login-error').style.display = 'block';
@@ -893,6 +1046,7 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
                 recalculate();
+                initProductSelectors();
                 recalculatePricing();
             }
         }
@@ -1200,6 +1354,82 @@
             `;
         }
 
+        // Group products by flavor for display
+        function getProductsByFlavor() {
+            const flavors = {};
+            PRICING_PRODUCTS.forEach(p => {
+                if (!flavors[p.flavor]) flavors[p.flavor] = [];
+                flavors[p.flavor].push(p);
+            });
+            return flavors;
+        }
+
+        // Render product checkboxes for a channel
+        function renderProductCheckboxes(channel) {
+            const container = document.getElementById(`${channel}-checkboxes`);
+            const flavors = getProductsByFlavor();
+            let html = '';
+
+            for (const [flavor, products] of Object.entries(flavors)) {
+                html += `<div class="flavor-group">`;
+                html += `<div class="flavor-group-header">${flavor}</div>`;
+                html += `<div class="product-checkboxes">`;
+
+                products.forEach(p => {
+                    const isSelected = channelSelections[channel].has(p.id);
+                    const label = `${p.size}oz ${p.type}`;
+                    html += `
+                        <label class="product-checkbox ${isSelected ? 'selected' : ''}">
+                            <input type="checkbox"
+                                   ${isSelected ? 'checked' : ''}
+                                   onchange="toggleProduct('${channel}', '${p.id}', this)">
+                            ${label}
+                        </label>
+                    `;
+                });
+
+                html += `</div></div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Toggle product selection
+        function toggleProduct(channel, productId, checkbox) {
+            if (checkbox.checked) {
+                channelSelections[channel].add(productId);
+            } else {
+                channelSelections[channel].delete(productId);
+            }
+            // Update the checkbox label styling
+            checkbox.parentElement.classList.toggle('selected', checkbox.checked);
+            recalculatePricing();
+        }
+
+        // Select all products for a channel
+        function selectAllChannel(channel) {
+            PRICING_PRODUCTS.forEach(p => channelSelections[channel].add(p.id));
+            renderProductCheckboxes(channel);
+            recalculatePricing();
+        }
+
+        // Clear all products for a channel
+        function clearAllChannel(channel) {
+            channelSelections[channel].clear();
+            renderProductCheckboxes(channel);
+            recalculatePricing();
+        }
+
+        // Select products by size for a channel
+        function selectBySize(channel, size) {
+            channelSelections[channel].clear();
+            PRICING_PRODUCTS.forEach(p => {
+                if (p.size === size) channelSelections[channel].add(p.id);
+            });
+            renderProductCheckboxes(channel);
+            recalculatePricing();
+        }
+
         // Transfer pricing calculation
         function recalculatePricing() {
             const safewayGM = parseFloat(document.getElementById('safewayGM').value) / 100;
@@ -1212,104 +1442,128 @@
             const cvsPerOz = parseFloat(document.getElementById('cvsPerOz').value);
             const costcoPerOz = parseFloat(document.getElementById('costcoPerOz').value);
 
-            // Costco pricing
+            // Costco pricing (only selected products)
             let costcoHTML = '';
-            PRICING_PRODUCTS.forEach(p => {
-                const targetSRP = Math.ceil(p.size * costcoPerOz * 100) / 100;
-                const maxMfgPrice = targetSRP / (1 + costcoMarkup);
-                const minPriceForGM = p.cogs / (1 - mfgTargetGM);
-                const suggestedTransfer = Math.min(maxMfgPrice, minPriceForGM);
-                const impliedGM = 1 - (p.cogs / suggestedTransfer);
+            const costcoProducts = PRICING_PRODUCTS.filter(p => channelSelections.costco.has(p.id));
 
-                let flag, flagClass;
-                if (p.cogs > maxMfgPrice) {
-                    flag = 'SRP too low';
-                    flagClass = 'error';
-                } else if (suggestedTransfer < minPriceForGM) {
-                    flag = 'Below target GM';
-                    flagClass = 'warning';
-                } else {
-                    flag = 'OK';
-                    flagClass = 'ok';
-                }
+            if (costcoProducts.length === 0) {
+                costcoHTML = '<div style="padding: 20px; color: #888; text-align: center;">No products selected. Use checkboxes above to add products.</div>';
+            } else {
+                costcoProducts.forEach(p => {
+                    const targetSRP = Math.ceil(p.size * costcoPerOz * 100) / 100;
+                    const maxMfgPrice = targetSRP / (1 + costcoMarkup);
+                    const minPriceForGM = p.cogs / (1 - mfgTargetGM);
+                    const suggestedTransfer = Math.min(maxMfgPrice, minPriceForGM);
 
-                costcoHTML += `
-                    <div class="pricing-row">
-                        <div>${p.name}</div>
-                        <div>${formatCurrencyDecimal(p.cogs)}</div>
-                        <div>${formatCurrencyDecimal(targetSRP)}</div>
-                        <div style="color: #22c55e;">${formatCurrencyDecimal(suggestedTransfer)}</div>
-                        <div><span class="flag ${flagClass}">${flag}</span></div>
-                    </div>
-                `;
-            });
+                    let flag, flagClass;
+                    if (p.cogs > maxMfgPrice) {
+                        flag = 'SRP too low';
+                        flagClass = 'error';
+                    } else if (suggestedTransfer < minPriceForGM) {
+                        flag = 'Below target GM';
+                        flagClass = 'warning';
+                    } else {
+                        flag = 'OK';
+                        flagClass = 'ok';
+                    }
+
+                    costcoHTML += `
+                        <div class="pricing-row">
+                            <div>${p.name}</div>
+                            <div>${formatCurrencyDecimal(p.cogs)}</div>
+                            <div>${formatCurrencyDecimal(targetSRP)}</div>
+                            <div style="color: #22c55e;">${formatCurrencyDecimal(suggestedTransfer)}</div>
+                            <div><span class="flag ${flagClass}">${flag}</span></div>
+                        </div>
+                    `;
+                });
+            }
             document.getElementById('costco-products').innerHTML = costcoHTML;
 
-            // Safeway pricing
+            // Safeway pricing (only selected products)
             let safewayHTML = '';
-            PRICING_PRODUCTS.forEach(p => {
-                const targetSRP = Math.ceil(p.size * safewayPerOz * 100) / 100;
-                const retailCost = targetSRP * (1 - safewayGM);
-                const maxTransfer = retailCost * (1 - distributorGM);
-                const minPriceForGM = p.cogs / (1 - mfgTargetGM);
-                const suggestedTransfer = Math.min(maxTransfer, minPriceForGM);
+            const safewayProducts = PRICING_PRODUCTS.filter(p => channelSelections.safeway.has(p.id));
 
-                let flag, flagClass;
-                if (p.cogs > maxTransfer) {
-                    flag = 'SRP too low';
-                    flagClass = 'error';
-                } else if (suggestedTransfer < minPriceForGM) {
-                    flag = 'Below target GM';
-                    flagClass = 'warning';
-                } else {
-                    flag = 'OK';
-                    flagClass = 'ok';
-                }
+            if (safewayProducts.length === 0) {
+                safewayHTML = '<div style="padding: 20px; color: #888; text-align: center;">No products selected. Use checkboxes above to add products.</div>';
+            } else {
+                safewayProducts.forEach(p => {
+                    const targetSRP = Math.ceil(p.size * safewayPerOz * 100) / 100;
+                    const retailCost = targetSRP * (1 - safewayGM);
+                    const maxTransfer = retailCost * (1 - distributorGM);
+                    const minPriceForGM = p.cogs / (1 - mfgTargetGM);
+                    const suggestedTransfer = Math.min(maxTransfer, minPriceForGM);
 
-                safewayHTML += `
-                    <div class="pricing-row">
-                        <div>${p.name}</div>
-                        <div>${formatCurrencyDecimal(p.cogs)}</div>
-                        <div>${formatCurrencyDecimal(targetSRP)}</div>
-                        <div style="color: #22c55e;">${formatCurrencyDecimal(suggestedTransfer)}</div>
-                        <div><span class="flag ${flagClass}">${flag}</span></div>
-                    </div>
-                `;
-            });
+                    let flag, flagClass;
+                    if (p.cogs > maxTransfer) {
+                        flag = 'SRP too low';
+                        flagClass = 'error';
+                    } else if (suggestedTransfer < minPriceForGM) {
+                        flag = 'Below target GM';
+                        flagClass = 'warning';
+                    } else {
+                        flag = 'OK';
+                        flagClass = 'ok';
+                    }
+
+                    safewayHTML += `
+                        <div class="pricing-row">
+                            <div>${p.name}</div>
+                            <div>${formatCurrencyDecimal(p.cogs)}</div>
+                            <div>${formatCurrencyDecimal(targetSRP)}</div>
+                            <div style="color: #22c55e;">${formatCurrencyDecimal(suggestedTransfer)}</div>
+                            <div><span class="flag ${flagClass}">${flag}</span></div>
+                        </div>
+                    `;
+                });
+            }
             document.getElementById('safeway-products').innerHTML = safewayHTML;
 
-            // CVS pricing
+            // CVS pricing (only selected products)
             let cvsHTML = '';
-            PRICING_PRODUCTS.forEach(p => {
-                const targetSRP = Math.ceil(p.size * cvsPerOz * 100) / 100;
-                const retailCost = targetSRP * (1 - cvsGM);
-                const maxTransfer = retailCost * (1 - distributorGM);
-                const minPriceForGM = p.cogs / (1 - mfgTargetGM);
-                const suggestedTransfer = Math.min(maxTransfer, minPriceForGM);
+            const cvsProducts = PRICING_PRODUCTS.filter(p => channelSelections.cvs.has(p.id));
 
-                let flag, flagClass;
-                if (p.cogs > maxTransfer) {
-                    flag = 'SRP too low';
-                    flagClass = 'error';
-                } else if (suggestedTransfer < minPriceForGM) {
-                    flag = 'Below target GM';
-                    flagClass = 'warning';
-                } else {
-                    flag = 'OK';
-                    flagClass = 'ok';
-                }
+            if (cvsProducts.length === 0) {
+                cvsHTML = '<div style="padding: 20px; color: #888; text-align: center;">No products selected. Use checkboxes above to add products.</div>';
+            } else {
+                cvsProducts.forEach(p => {
+                    const targetSRP = Math.ceil(p.size * cvsPerOz * 100) / 100;
+                    const retailCost = targetSRP * (1 - cvsGM);
+                    const maxTransfer = retailCost * (1 - distributorGM);
+                    const minPriceForGM = p.cogs / (1 - mfgTargetGM);
+                    const suggestedTransfer = Math.min(maxTransfer, minPriceForGM);
 
-                cvsHTML += `
-                    <div class="pricing-row">
-                        <div>${p.name}</div>
-                        <div>${formatCurrencyDecimal(p.cogs)}</div>
-                        <div>${formatCurrencyDecimal(targetSRP)}</div>
-                        <div style="color: #22c55e;">${formatCurrencyDecimal(suggestedTransfer)}</div>
-                        <div><span class="flag ${flagClass}">${flag}</span></div>
-                    </div>
-                `;
-            });
+                    let flag, flagClass;
+                    if (p.cogs > maxTransfer) {
+                        flag = 'SRP too low';
+                        flagClass = 'error';
+                    } else if (suggestedTransfer < minPriceForGM) {
+                        flag = 'Below target GM';
+                        flagClass = 'warning';
+                    } else {
+                        flag = 'OK';
+                        flagClass = 'ok';
+                    }
+
+                    cvsHTML += `
+                        <div class="pricing-row">
+                            <div>${p.name}</div>
+                            <div>${formatCurrencyDecimal(p.cogs)}</div>
+                            <div>${formatCurrencyDecimal(targetSRP)}</div>
+                            <div style="color: #22c55e;">${formatCurrencyDecimal(suggestedTransfer)}</div>
+                            <div><span class="flag ${flagClass}">${flag}</span></div>
+                        </div>
+                    `;
+                });
+            }
             document.getElementById('cvs-products').innerHTML = cvsHTML;
+        }
+
+        // Initialize product checkboxes
+        function initProductSelectors() {
+            renderProductCheckboxes('costco');
+            renderProductCheckboxes('safeway');
+            renderProductCheckboxes('cvs');
         }
 
         // Initialize on page load
