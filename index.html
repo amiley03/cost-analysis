@@ -828,7 +828,7 @@
                 <div class="channel-card">
                     <div class="pricing-row header">
                         <div>Product</div>
-                        <div>COGS/Unit</div>
+                        <div>Total Cost/Unit</div>
                         <div>Target SRP</div>
                         <div>Suggested Transfer</div>
                         <div>Status</div>
@@ -857,7 +857,7 @@
                 <div class="channel-card">
                     <div class="pricing-row header">
                         <div>Product</div>
-                        <div>COGS/Unit</div>
+                        <div>Total Cost/Unit</div>
                         <div>Target SRP</div>
                         <div>Suggested Transfer</div>
                         <div>Status</div>
@@ -885,7 +885,7 @@
                 <div class="channel-card">
                     <div class="pricing-row header">
                         <div>Product</div>
-                        <div>COGS/Unit</div>
+                        <div>Total Cost/Unit</div>
                         <div>Target SRP</div>
                         <div>Suggested Transfer</div>
                         <div>Status</div>
@@ -1452,16 +1452,14 @@
                 costcoProducts.forEach(p => {
                     const targetSRP = Math.ceil(p.size * costcoPerOz * 100) / 100;
                     const maxMfgPrice = targetSRP / (1 + costcoMarkup);
-                    const minPriceForGM = p.cogs / (1 - mfgTargetGM);
-                    const suggestedTransfer = Math.min(maxMfgPrice, minPriceForGM);
+                    // Suggested transfer is always the price needed to hit target GM%
+                    const suggestedTransfer = p.cogs / (1 - mfgTargetGM);
 
                     let flag, flagClass;
-                    if (p.cogs > maxMfgPrice) {
+                    if (suggestedTransfer > maxMfgPrice) {
+                        // Can't hit target GM at this SRP
                         flag = 'SRP too low';
                         flagClass = 'error';
-                    } else if (suggestedTransfer < minPriceForGM) {
-                        flag = 'Below target GM';
-                        flagClass = 'warning';
                     } else {
                         flag = 'OK';
                         flagClass = 'ok';
@@ -1491,16 +1489,14 @@
                     const targetSRP = Math.ceil(p.size * safewayPerOz * 100) / 100;
                     const retailCost = targetSRP * (1 - safewayGM);
                     const maxTransfer = retailCost * (1 - distributorGM);
-                    const minPriceForGM = p.cogs / (1 - mfgTargetGM);
-                    const suggestedTransfer = Math.min(maxTransfer, minPriceForGM);
+                    // Suggested transfer is always the price needed to hit target GM%
+                    const suggestedTransfer = p.cogs / (1 - mfgTargetGM);
 
                     let flag, flagClass;
-                    if (p.cogs > maxTransfer) {
+                    if (suggestedTransfer > maxTransfer) {
+                        // Can't hit target GM at this SRP
                         flag = 'SRP too low';
                         flagClass = 'error';
-                    } else if (suggestedTransfer < minPriceForGM) {
-                        flag = 'Below target GM';
-                        flagClass = 'warning';
                     } else {
                         flag = 'OK';
                         flagClass = 'ok';
@@ -1530,16 +1526,14 @@
                     const targetSRP = Math.ceil(p.size * cvsPerOz * 100) / 100;
                     const retailCost = targetSRP * (1 - cvsGM);
                     const maxTransfer = retailCost * (1 - distributorGM);
-                    const minPriceForGM = p.cogs / (1 - mfgTargetGM);
-                    const suggestedTransfer = Math.min(maxTransfer, minPriceForGM);
+                    // Suggested transfer is always the price needed to hit target GM%
+                    const suggestedTransfer = p.cogs / (1 - mfgTargetGM);
 
                     let flag, flagClass;
-                    if (p.cogs > maxTransfer) {
+                    if (suggestedTransfer > maxTransfer) {
+                        // Can't hit target GM at this SRP
                         flag = 'SRP too low';
                         flagClass = 'error';
-                    } else if (suggestedTransfer < minPriceForGM) {
-                        flag = 'Below target GM';
-                        flagClass = 'warning';
                     } else {
                         flag = 'OK';
                         flagClass = 'ok';
