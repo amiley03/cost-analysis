@@ -938,22 +938,23 @@
         };
 
         // Product sizes with cost data from Excel
-        // totalCost = nonLOF + fixed L/O/F ($3.59 per unit from Combined sheet)
+        // nonLOF = costs excluding Labor/Overhead/Freight (for monthly breakdown with variable L/O/F)
+        // totalCost = nonLOF + fixed L/O/F ($3.59 per unit from Combined sheet) - used for Product Mix
         // transfer = current selling price per unit
         const PRODUCTS = [
-            { size: 1, defaultMixPct: 0.1, transfer: 0.99, totalCost: 4.15 },
-            { size: 1.5, defaultMixPct: 0.1, transfer: 1.48, totalCost: 4.43 },
-            { size: 2, defaultMixPct: 0.2, transfer: 1.98, totalCost: 4.70 },
-            { size: 2.5, defaultMixPct: 15, transfer: 2.75, totalCost: 5.08 },
-            { size: 2.75, defaultMixPct: 0.1, transfer: 2.72, totalCost: 5.12 },
-            { size: 2.85, defaultMixPct: 0.1, transfer: 2.81, totalCost: 5.18 },
-            { size: 5, defaultMixPct: 0.1, transfer: 4.94, totalCost: 6.38 },
-            { size: 6, defaultMixPct: 25, transfer: 5.25, totalCost: 6.70 },
-            { size: 8, defaultMixPct: 5, transfer: 7.25, totalCost: 7.76 },
-            { size: 9, defaultMixPct: 0.1, transfer: 6.91, totalCost: 8.28 },
-            { size: 12, defaultMixPct: 20, transfer: 9.00, totalCost: 10.23 },
-            { size: 14, defaultMixPct: 30, transfer: 11.00, totalCost: 10.43 },
-            { size: 16, defaultMixPct: 4, transfer: 12.29, totalCost: 11.93 }
+            { size: 1, defaultMixPct: 0.1, transfer: 0.99, nonLOF: 0.56, totalCost: 4.15 },
+            { size: 1.5, defaultMixPct: 0.1, transfer: 1.48, nonLOF: 0.84, totalCost: 4.43 },
+            { size: 2, defaultMixPct: 0.2, transfer: 1.98, nonLOF: 1.11, totalCost: 4.70 },
+            { size: 2.5, defaultMixPct: 15, transfer: 2.75, nonLOF: 1.49, totalCost: 5.08 },
+            { size: 2.75, defaultMixPct: 0.1, transfer: 2.72, nonLOF: 1.53, totalCost: 5.12 },
+            { size: 2.85, defaultMixPct: 0.1, transfer: 2.81, nonLOF: 1.59, totalCost: 5.18 },
+            { size: 5, defaultMixPct: 0.1, transfer: 4.94, nonLOF: 2.79, totalCost: 6.38 },
+            { size: 6, defaultMixPct: 25, transfer: 5.25, nonLOF: 3.11, totalCost: 6.70 },
+            { size: 8, defaultMixPct: 5, transfer: 7.25, nonLOF: 4.17, totalCost: 7.76 },
+            { size: 9, defaultMixPct: 0.1, transfer: 6.91, nonLOF: 4.69, totalCost: 8.28 },
+            { size: 12, defaultMixPct: 20, transfer: 9.00, nonLOF: 6.64, totalCost: 10.23 },
+            { size: 14, defaultMixPct: 30, transfer: 11.00, nonLOF: 6.84, totalCost: 10.43 },
+            { size: 16, defaultMixPct: 4, transfer: 12.29, nonLOF: 8.34, totalCost: 11.93 }
         ];
 
         // Current mix percentages (editable, stored as 0-100 values)
