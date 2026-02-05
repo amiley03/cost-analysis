@@ -668,19 +668,23 @@
             </div>
 
             <div class="card">
-                <h2>Cost Scaling Summary</h2>
+                <h2>Cost Scaling Summary <span class="badge">Weighted Avg Per Unit</span></h2>
                 <div class="metrics-grid">
                     <div class="metric">
-                        <div class="label">Labor $/lb</div>
-                        <div class="value" id="laborPerLb">$0.00</div>
+                        <div class="label">Labor $/unit</div>
+                        <div class="value" id="laborPerUnit">$0.00</div>
                     </div>
                     <div class="metric">
-                        <div class="label">Overhead $/lb</div>
-                        <div class="value" id="overheadPerLb">$0.00</div>
+                        <div class="label">Overhead $/unit</div>
+                        <div class="value" id="overheadPerUnit">$0.00</div>
                     </div>
                     <div class="metric">
-                        <div class="label">Freight $/lb</div>
-                        <div class="value" id="freightPerLb">$0.00</div>
+                        <div class="label">Freight $/unit</div>
+                        <div class="value" id="freightPerUnit">$0.00</div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">Avg Unit Size</div>
+                        <div class="value" id="avgUnitSize">0 oz</div>
                     </div>
                 </div>
             </div>
@@ -1061,14 +1065,31 @@
             const overheadPerLb = annualLbs > 0 ? scenarioOverhead / annualLbs : 0;
             const freightPerLb = annualLbs > 0 ? scenarioFreight / annualLbs : 0;
 
-            // Update cost scaling display
-            document.getElementById('laborPerLb').textContent = formatCurrencyDecimal(laborPerLb);
-            document.getElementById('overheadPerLb').textContent = formatCurrencyDecimal(overheadPerLb);
-            document.getElementById('freightPerLb').textContent = formatCurrencyDecimal(freightPerLb);
-
             // Get current mix from inputs (as decimal fractions)
             const mix = getMixFromInputs();
             const mixFractions = mix.map(m => m / 100);
+
+            // Calculate weighted average unit size based on product mix
+            let mixDenomForAvg = mixFractions.reduce((sum, m) => sum + m, 0);
+            if (mixDenomForAvg === 0) mixDenomForAvg = 1;
+
+            let weightedSizeSum = 0;
+            PRODUCTS.forEach((p, idx) => {
+                weightedSizeSum += p.size * (mixFractions[idx] / mixDenomForAvg);
+            });
+            const avgUnitSize = weightedSizeSum; // in oz
+            const avgLbsPerUnit = avgUnitSize / 16;
+
+            // Calculate per-unit costs (weighted average)
+            const laborPerUnit = laborPerLb * avgLbsPerUnit;
+            const overheadPerUnit = overheadPerLb * avgLbsPerUnit;
+            const freightPerUnit = freightPerLb * avgLbsPerUnit;
+
+            // Update cost scaling display (per unit)
+            document.getElementById('laborPerUnit').textContent = formatCurrencyDecimal(laborPerUnit);
+            document.getElementById('overheadPerUnit').textContent = formatCurrencyDecimal(overheadPerUnit);
+            document.getElementById('freightPerUnit').textContent = formatCurrencyDecimal(freightPerUnit);
+            document.getElementById('avgUnitSize').textContent = avgUnitSize.toFixed(1) + ' oz';
 
             // Calculate and render per-size metrics
             const sizeMetrics = calculateSizeMetrics(laborPerLb, overheadPerLb, freightPerLb);
