@@ -720,19 +720,7 @@
                         <input type="number" id="annualLbs" class="editable" value="638205" onchange="recalculate()">
                     </div>
                     <div class="input-group">
-                        <label>Labor Fixed %</label>
-                        <input type="number" id="laborFixed" class="editable" value="35" min="0" max="100" onchange="recalculate()">
-                    </div>
-                    <div class="input-group">
-                        <label>Overhead Fixed %</label>
-                        <input type="number" id="overheadFixed" class="editable" value="58" min="0" max="100" onchange="recalculate()">
-                    </div>
-                    <div class="input-group">
-                        <label>Freight Fixed %</label>
-                        <input type="number" id="freightFixed" class="editable" value="6" min="0" max="100" onchange="recalculate()">
-                    </div>
-                    <div class="input-group">
-                        <label>Target GM % (optional)</label>
+                        <label>Target GM %</label>
                         <input type="number" id="targetGM" class="editable" value="17" min="0" max="100" onchange="recalculate()">
                     </div>
                 </div>
@@ -874,27 +862,6 @@
                 </div>
             </div>
 
-            <div class="card">
-                <h2>Cost Scaling Summary <span class="badge">Weighted Avg Per Unit</span></h2>
-                <div class="metrics-grid">
-                    <div class="metric">
-                        <div class="label">Labor $/unit</div>
-                        <div class="value" id="laborPerUnit">$0.00</div>
-                    </div>
-                    <div class="metric">
-                        <div class="label">Overhead $/unit</div>
-                        <div class="value" id="overheadPerUnit">$0.00</div>
-                    </div>
-                    <div class="metric">
-                        <div class="label">Freight $/unit</div>
-                        <div class="value" id="freightPerUnit">$0.00</div>
-                    </div>
-                    <div class="metric">
-                        <div class="label">Avg Unit Size</div>
-                        <div class="value" id="avgUnitSize">0 oz</div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Transfer Pricing Tab -->
@@ -1030,26 +997,6 @@
                 </div>
             </div>
 
-            <div class="card">
-                <h2>Pricing Formula Reference</h2>
-                <p style="font-size: 13px; color: #888; line-height: 1.8;">
-                    <strong>Safeway/CVS (through distributor):</strong><br>
-                    Retail Cost = SRP × (1 – Retail GM%)<br>
-                    Max Mfg→Dist Transfer = Retail Cost × (1 – Distributor GM%)<br><br>
-                    <strong>Costco (direct):</strong><br>
-                    Max Mfg Price = SRP ÷ (1 + Costco Markup%)
-                </p>
-                <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color yellow"></div>
-                        <span>Editable inputs</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color green"></div>
-                        <span>Suggested transfer prices</span>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -1057,32 +1004,23 @@
         // Configuration - CHANGE THIS PASSWORD
         const SITE_PASSWORD = 'bearbear2026';
 
-        // Baseline data from spreadsheet (2025 Costing Summary_3.xlsx, $ Per Unit 7yr sheet, 1 Yr Proj column)
-        const BASELINE = {
-            lbs: 638204.76,
-            laborAnnual: 865649,      // Total Labor 1 Yr Proj
-            overheadAnnual: 1428705,  // Other Costs 1 Yr Proj
-            freightAnnual: 158199     // Freight 1 Yr Proj
-        };
-
-        // Product sizes with cost data from Excel
-        // nonLOF = costs excluding Labor/Overhead/Freight (for monthly breakdown with variable L/O/F)
-        // totalCost = nonLOF + fixed L/O/F ($3.59 per unit from Combined sheet) - used for Product Mix
+        // Product sizes with cost data from Excel (2025 Costing Summary_3.xlsx Combined sheet)
+        // totalCost = all costs per unit (meat, packaging, labor, overhead, freight)
         // transfer = current selling price per unit
         const PRODUCTS = [
-            { size: 1, defaultMixPct: 0.1, transfer: 0.99, nonLOF: 0.56, totalCost: 4.15 },
-            { size: 1.5, defaultMixPct: 0.1, transfer: 1.48, nonLOF: 0.84, totalCost: 4.43 },
-            { size: 2, defaultMixPct: 0.2, transfer: 1.98, nonLOF: 1.11, totalCost: 4.70 },
-            { size: 2.5, defaultMixPct: 15, transfer: 2.75, nonLOF: 1.49, totalCost: 5.08 },
-            { size: 2.75, defaultMixPct: 0.1, transfer: 2.72, nonLOF: 1.53, totalCost: 5.12 },
-            { size: 2.85, defaultMixPct: 0.1, transfer: 2.81, nonLOF: 1.59, totalCost: 5.18 },
-            { size: 5, defaultMixPct: 0.1, transfer: 4.94, nonLOF: 2.79, totalCost: 6.38 },
-            { size: 6, defaultMixPct: 25, transfer: 5.25, nonLOF: 3.11, totalCost: 6.70 },
-            { size: 8, defaultMixPct: 5, transfer: 7.25, nonLOF: 4.17, totalCost: 7.76 },
-            { size: 9, defaultMixPct: 0.1, transfer: 6.91, nonLOF: 4.69, totalCost: 8.28 },
-            { size: 12, defaultMixPct: 20, transfer: 9.00, nonLOF: 6.64, totalCost: 10.23 },
-            { size: 14, defaultMixPct: 30, transfer: 11.00, nonLOF: 6.84, totalCost: 10.43 },
-            { size: 16, defaultMixPct: 4, transfer: 12.29, nonLOF: 8.34, totalCost: 11.93 }
+            { size: 1, defaultMixPct: 0.1, transfer: 0.99, totalCost: 4.15 },
+            { size: 1.5, defaultMixPct: 0.1, transfer: 1.48, totalCost: 4.43 },
+            { size: 2, defaultMixPct: 0.2, transfer: 1.98, totalCost: 4.70 },
+            { size: 2.5, defaultMixPct: 15, transfer: 2.75, totalCost: 5.08 },
+            { size: 2.75, defaultMixPct: 0.1, transfer: 2.72, totalCost: 5.12 },
+            { size: 2.85, defaultMixPct: 0.1, transfer: 2.81, totalCost: 5.18 },
+            { size: 5, defaultMixPct: 0.1, transfer: 4.94, totalCost: 6.38 },
+            { size: 6, defaultMixPct: 25, transfer: 5.25, totalCost: 6.70 },
+            { size: 8, defaultMixPct: 5, transfer: 7.25, totalCost: 7.76 },
+            { size: 9, defaultMixPct: 0.1, transfer: 6.91, totalCost: 8.28 },
+            { size: 12, defaultMixPct: 20, transfer: 9.00, totalCost: 10.23 },
+            { size: 14, defaultMixPct: 30, transfer: 11.00, totalCost: 10.43 },
+            { size: 16, defaultMixPct: 4, transfer: 12.29, totalCost: 11.93 }
         ];
 
         // Current mix percentages (editable, stored as 0-100 values)
@@ -1381,48 +1319,11 @@
         // Main calculation
         function recalculate() {
             const annualLbs = parseFloat(document.getElementById('annualLbs').value) || 0;
-            const laborFixed = parseFloat(document.getElementById('laborFixed').value) / 100 || 0;
-            const overheadFixed = parseFloat(document.getElementById('overheadFixed').value) / 100 || 0;
-            const freightFixed = parseFloat(document.getElementById('freightFixed').value) / 100 || 0;
             const targetGM = parseFloat(document.getElementById('targetGM').value) / 100 || 0;
-
-            // Calculate scaled costs
-            const scenarioLabor = (BASELINE.laborAnnual * laborFixed) +
-                ((BASELINE.laborAnnual * (1 - laborFixed)) / BASELINE.lbs) * annualLbs;
-            const scenarioOverhead = (BASELINE.overheadAnnual * overheadFixed) +
-                ((BASELINE.overheadAnnual * (1 - overheadFixed)) / BASELINE.lbs) * annualLbs;
-            const scenarioFreight = (BASELINE.freightAnnual * freightFixed) +
-                ((BASELINE.freightAnnual * (1 - freightFixed)) / BASELINE.lbs) * annualLbs;
-
-            const laborPerLb = annualLbs > 0 ? scenarioLabor / annualLbs : 0;
-            const overheadPerLb = annualLbs > 0 ? scenarioOverhead / annualLbs : 0;
-            const freightPerLb = annualLbs > 0 ? scenarioFreight / annualLbs : 0;
 
             // Get current mix from inputs (as decimal fractions)
             const mix = getMixFromInputs();
             const mixFractions = mix.map(m => m / 100);
-
-            // Calculate weighted average unit size based on product mix
-            let mixDenomForAvg = mixFractions.reduce((sum, m) => sum + m, 0);
-            if (mixDenomForAvg === 0) mixDenomForAvg = 1;
-
-            let weightedSizeSum = 0;
-            PRODUCTS.forEach((p, idx) => {
-                weightedSizeSum += p.size * (mixFractions[idx] / mixDenomForAvg);
-            });
-            const avgUnitSize = weightedSizeSum; // in oz
-            const avgLbsPerUnit = avgUnitSize / 16;
-
-            // Calculate per-unit costs (weighted average)
-            const laborPerUnit = laborPerLb * avgLbsPerUnit;
-            const overheadPerUnit = overheadPerLb * avgLbsPerUnit;
-            const freightPerUnit = freightPerLb * avgLbsPerUnit;
-
-            // Update cost scaling display (per unit)
-            document.getElementById('laborPerUnit').textContent = formatCurrencyDecimal(laborPerUnit);
-            document.getElementById('overheadPerUnit').textContent = formatCurrencyDecimal(overheadPerUnit);
-            document.getElementById('freightPerUnit').textContent = formatCurrencyDecimal(freightPerUnit);
-            document.getElementById('avgUnitSize').textContent = avgUnitSize.toFixed(1) + ' oz';
 
             // Calculate and render per-size metrics
             const sizeMetrics = calculateSizeMetrics(targetGM);
