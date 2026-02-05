@@ -824,6 +824,26 @@
                                         </span>
                                     </span>
                                 </th>
+                                <th>
+                                    <span class="tooltip-header">
+                                        Cost/oz
+                                        <span class="tooltip-icon">?</span>
+                                        <span class="tooltip-content">
+                                            Cost per ounce - compare efficiency across sizes.
+                                            <span class="tooltip-formula">Cost/Unit ÷ Size (oz)</span>
+                                        </span>
+                                    </span>
+                                </th>
+                                <th>
+                                    <span class="tooltip-header">
+                                        Margin/oz
+                                        <span class="tooltip-icon">?</span>
+                                        <span class="tooltip-content">
+                                            Margin per ounce - compare profitability across sizes.
+                                            <span class="tooltip-formula">Margin/Unit ÷ Size (oz)</span>
+                                        </span>
+                                    </span>
+                                </th>
                             </tr>
                         </thead>
                         <tbody id="mixTable">
@@ -1202,21 +1222,19 @@
             recalculate();
         }
 
-        // Calculate per-size metrics (all values per unit)
+        // Calculate per-size metrics (per unit AND per oz)
         // totalCost includes all costs (meat, packaging, labor, overhead, freight) as fixed per unit
         function calculateSizeMetrics(targetGM) {
             return PRODUCTS.map((p, i) => {
-                // Revenue per unit = transfer price
+                // Per-unit metrics
                 const revenuePerUnit = p.transfer;
-
-                // Cost per unit = totalCost (includes all fixed costs)
                 const costPerUnit = p.totalCost;
-
-                // Margin per unit
                 const marginPerUnit = revenuePerUnit - costPerUnit;
-
-                // Margin %
                 const marginPct = revenuePerUnit > 0 ? marginPerUnit / revenuePerUnit : 0;
+
+                // Per-oz metrics (for efficiency comparison across sizes)
+                const costPerOz = costPerUnit / p.size;
+                const marginPerOz = marginPerUnit / p.size;
 
                 // Suggested transfer to hit target GM%
                 const suggestedTransfer = targetGM > 0 ? costPerUnit / (1 - targetGM) : costPerUnit;
@@ -1228,6 +1246,8 @@
                     costPerUnit,
                     marginPerUnit,
                     marginPct,
+                    costPerOz,
+                    marginPerOz,
                     suggestedTransfer
                 };
             });
@@ -1271,6 +1291,8 @@
                     <td style="color: #22c55e;">${formatCurrencyDecimal(m.suggestedTransfer)}</td>
                     <td class="${m.marginPerUnit >= 0 ? 'positive' : 'negative'}">${formatCurrencyDecimal(m.marginPerUnit)}</td>
                     <td class="${m.marginPct >= 0 ? 'positive' : 'negative'}">${formatPercent(m.marginPct)}</td>
+                    <td>${formatCurrencyDecimal(m.costPerOz)}</td>
+                    <td class="${m.marginPerOz >= 0 ? 'positive' : 'negative'}">${formatCurrencyDecimal(m.marginPerOz)}</td>
                 </tr>
             `).join('');
         }
