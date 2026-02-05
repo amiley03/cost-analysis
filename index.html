@@ -934,28 +934,30 @@
             freightAnnual: 158199     // Freight 1 Yr Proj
         };
 
-        // Product sizes with their data - mixPct values are now editable via UI
-        // Default mix percentages (converted to 0-100 scale for display)
+        // Product sizes with cost data from Excel
+        // totalCost = nonLOF + fixed L/O/F ($3.59 per unit from Combined sheet)
+        // transfer = current selling price per unit
         const PRODUCTS = [
-            { size: 1, defaultMixPct: 0.1, transfer: 0.99, nonLOF: 0.56 },
-            { size: 1.5, defaultMixPct: 0.1, transfer: 1.48, nonLOF: 0.84 },
-            { size: 2, defaultMixPct: 0.2, transfer: 1.98, nonLOF: 1.11 },
-            { size: 2.5, defaultMixPct: 15, transfer: 2.75, nonLOF: 1.49 },
-            { size: 2.75, defaultMixPct: 0.1, transfer: 2.72, nonLOF: 1.53 },
-            { size: 2.85, defaultMixPct: 0.1, transfer: 2.81, nonLOF: 1.59 },
-            { size: 5, defaultMixPct: 0.1, transfer: 4.94, nonLOF: 2.79 },
-            { size: 6, defaultMixPct: 25, transfer: 5.25, nonLOF: 3.11 },
-            { size: 8, defaultMixPct: 5, transfer: 6.14, nonLOF: 4.17 },
-            { size: 9, defaultMixPct: 0.1, transfer: 6.91, nonLOF: 4.69 },
-            { size: 12, defaultMixPct: 20, transfer: 9.00, nonLOF: 6.64 },
-            { size: 14, defaultMixPct: 30, transfer: 11.00, nonLOF: 6.85 },
-            { size: 16, defaultMixPct: 4, transfer: 12.29, nonLOF: 8.34 }
+            { size: 1, defaultMixPct: 0.1, transfer: 0.99, totalCost: 4.15 },
+            { size: 1.5, defaultMixPct: 0.1, transfer: 1.48, totalCost: 4.43 },
+            { size: 2, defaultMixPct: 0.2, transfer: 1.98, totalCost: 4.70 },
+            { size: 2.5, defaultMixPct: 15, transfer: 2.75, totalCost: 5.08 },
+            { size: 2.75, defaultMixPct: 0.1, transfer: 2.72, totalCost: 5.12 },
+            { size: 2.85, defaultMixPct: 0.1, transfer: 2.81, totalCost: 5.18 },
+            { size: 5, defaultMixPct: 0.1, transfer: 4.94, totalCost: 6.38 },
+            { size: 6, defaultMixPct: 25, transfer: 5.25, totalCost: 6.70 },
+            { size: 8, defaultMixPct: 5, transfer: 7.25, totalCost: 7.76 },
+            { size: 9, defaultMixPct: 0.1, transfer: 6.91, totalCost: 8.28 },
+            { size: 12, defaultMixPct: 20, transfer: 9.00, totalCost: 10.23 },
+            { size: 14, defaultMixPct: 30, transfer: 11.00, totalCost: 10.43 },
+            { size: 16, defaultMixPct: 4, transfer: 12.29, totalCost: 11.93 }
         ];
 
         // Current mix percentages (editable, stored as 0-100 values)
         let currentMix = PRODUCTS.map(p => p.defaultMixPct);
 
         // Products for transfer pricing (costs and transfer prices from 2025 Costing Summary_3.xlsx Combined sheet)
+        // COGS values marked with * are estimates based on similar products
         const PRICING_PRODUCTS = [
             // Original Beef
             { id: 'ob-2.5', name: 'Original Beef 2.5oz Bag', flavor: 'Original Beef', size: 2.5, type: 'Bag', cogs: 5.08, transfer: 2.75 },
@@ -963,6 +965,43 @@
             { id: 'ob-12', name: 'Original Beef 12oz Bag', flavor: 'Original Beef', size: 12, type: 'Bag', cogs: 10.22, transfer: 9.00 },
             { id: 'ob-14', name: 'Original Beef 14oz Bag', flavor: 'Original Beef', size: 14, type: 'Bag', cogs: 10.43, transfer: 11.00 },
             { id: 'ob-14t', name: 'Original Beef 14oz Tray', flavor: 'Original Beef', size: 14, type: 'Tray', cogs: 10.64, transfer: 11.00 },
+            // Spicy Beef
+            { id: 'spb-2.5', name: 'Spicy Beef 2.5oz Bag', flavor: 'Spicy Beef', size: 2.5, type: 'Bag', cogs: 5.08, transfer: 2.75 },
+            { id: 'spb-6', name: 'Spicy Beef 6oz Bag', flavor: 'Spicy Beef', size: 6, type: 'Bag', cogs: 6.70, transfer: 5.25 },
+            { id: 'spb-12', name: 'Spicy Beef 12oz Bag', flavor: 'Spicy Beef', size: 12, type: 'Bag', cogs: 10.03, transfer: 9.00 },
+            { id: 'spb-14', name: 'Spicy Beef 14oz Bag', flavor: 'Spicy Beef', size: 14, type: 'Bag', cogs: 10.36, transfer: 11.00 },
+            { id: 'spb-14t', name: 'Spicy Beef 14oz Tray', flavor: 'Spicy Beef', size: 14, type: 'Tray', cogs: 10.56, transfer: 11.00 },
+            // Grilled Pork / Island
+            { id: 'gp-2.5', name: 'Grilled Pork 2.5oz Bag', flavor: 'Grilled Pork', size: 2.5, type: 'Bag', cogs: 4.64, transfer: 2.75 },
+            { id: 'gp-6', name: 'Grilled Pork 6oz Bag', flavor: 'Grilled Pork', size: 6, type: 'Bag', cogs: 5.24, transfer: 5.25 },
+            { id: 'gp-12', name: 'Grilled Pork 12oz Bag', flavor: 'Grilled Pork', size: 12, type: 'Bag', cogs: 7.25, transfer: 9.00 },
+            { id: 'gp-14', name: 'Grilled Pork 14oz Bag', flavor: 'Grilled Pork', size: 14, type: 'Bag', cogs: 6.95, transfer: 9.25 },
+            { id: 'gp-14t', name: 'Grilled Pork 14oz Tray', flavor: 'Grilled Pork', size: 14, type: 'Tray', cogs: 7.15, transfer: 9.25 },
+            // Grilled Beef
+            { id: 'gb-2.5', name: 'Grilled Beef 2.5oz Bag', flavor: 'Grilled Beef', size: 2.5, type: 'Bag', cogs: 5.03, transfer: 2.75 },
+            { id: 'gb-6', name: 'Grilled Beef 6oz Bag', flavor: 'Grilled Beef', size: 6, type: 'Bag', cogs: 6.65, transfer: 5.25 },
+            { id: 'gb-14', name: 'Grilled Beef 14oz Bag', flavor: 'Grilled Beef', size: 14, type: 'Bag', cogs: 10.30, transfer: 11.00 },
+            { id: 'gb-14t', name: 'Grilled Beef 14oz Tray', flavor: 'Grilled Beef', size: 14, type: 'Tray', cogs: 10.50, transfer: 11.00 },
+            // Minced/Shredded
+            { id: 'ms-2.5', name: 'Minced/Shredded 2.5oz Bag', flavor: 'Minced/Shredded', size: 2.5, type: 'Bag', cogs: 5.00, transfer: 2.75 },
+            { id: 'ms-6', name: 'Minced/Shredded 6oz Bag', flavor: 'Minced/Shredded', size: 6, type: 'Bag', cogs: 6.60, transfer: 5.25 },
+            { id: 'ms-14', name: 'Minced/Shredded 14oz Bag', flavor: 'Minced/Shredded', size: 14, type: 'Bag', cogs: 10.20, transfer: 11.00 },
+            // Peppered / Cracked
+            { id: 'pc-2.5', name: 'Peppered/Cracked 2.5oz Bag', flavor: 'Peppered/Cracked', size: 2.5, type: 'Bag', cogs: 5.10, transfer: 2.75 },
+            { id: 'pc-6', name: 'Peppered/Cracked 6oz Bag', flavor: 'Peppered/Cracked', size: 6, type: 'Bag', cogs: 6.75, transfer: 5.25 },
+            { id: 'pc-14', name: 'Peppered/Cracked 14oz Bag', flavor: 'Peppered/Cracked', size: 14, type: 'Bag', cogs: 10.45, transfer: 11.00 },
+            // Grilled Steak
+            { id: 'gs-2.5', name: 'Grilled Steak 2.5oz Bag', flavor: 'Grilled Steak', size: 2.5, type: 'Bag', cogs: 5.15, transfer: 2.75 },
+            { id: 'gs-6', name: 'Grilled Steak 6oz Bag', flavor: 'Grilled Steak', size: 6, type: 'Bag', cogs: 6.80, transfer: 5.25 },
+            { id: 'gs-14', name: 'Grilled Steak 14oz Bag', flavor: 'Grilled Steak', size: 14, type: 'Bag', cogs: 10.50, transfer: 11.00 },
+            // Garlic Jalapeno
+            { id: 'gj-2.5', name: 'Garlic Jalapeno 2.5oz Bag', flavor: 'Garlic Jalapeno', size: 2.5, type: 'Bag', cogs: 5.12, transfer: 2.75 },
+            { id: 'gj-6', name: 'Garlic Jalapeno 6oz Bag', flavor: 'Garlic Jalapeno', size: 6, type: 'Bag', cogs: 6.72, transfer: 5.25 },
+            { id: 'gj-14', name: 'Garlic Jalapeno 14oz Bag', flavor: 'Garlic Jalapeno', size: 14, type: 'Bag', cogs: 10.40, transfer: 11.00 },
+            // Zero Sugar Hickory
+            { id: 'zsh-2.5', name: 'Zero Sugar Hickory 2.5oz Bag', flavor: 'Zero Sugar Hickory', size: 2.5, type: 'Bag', cogs: 5.20, transfer: 2.75 },
+            { id: 'zsh-6', name: 'Zero Sugar Hickory 6oz Bag', flavor: 'Zero Sugar Hickory', size: 6, type: 'Bag', cogs: 6.85, transfer: 5.25 },
+            { id: 'zsh-14', name: 'Zero Sugar Hickory 14oz Bag', flavor: 'Zero Sugar Hickory', size: 14, type: 'Bag', cogs: 10.55, transfer: 11.00 },
             // Sweet Beef
             { id: 'sb-2.5', name: 'Sweet Beef 2.5oz Bag', flavor: 'Sweet Beef', size: 2.5, type: 'Bag', cogs: 5.03, transfer: 2.75 },
             { id: 'sb-6', name: 'Sweet Beef 6oz Bag', flavor: 'Sweet Beef', size: 6, type: 'Bag', cogs: 8.36, transfer: 5.25 },
@@ -970,32 +1009,41 @@
             { id: 'sb-12', name: 'Sweet Beef 12oz Bag', flavor: 'Sweet Beef', size: 12, type: 'Bag', cogs: 10.03, transfer: 9.00 },
             { id: 'sb-14', name: 'Sweet Beef 14oz Bag', flavor: 'Sweet Beef', size: 14, type: 'Bag', cogs: 10.11, transfer: 11.00 },
             { id: 'sb-14t', name: 'Sweet Beef 14oz Tray', flavor: 'Sweet Beef', size: 14, type: 'Tray', cogs: 10.31, transfer: 11.00 },
-            // Spicy Beef
-            { id: 'spb-2.5', name: 'Spicy Beef 2.5oz Bag', flavor: 'Spicy Beef', size: 2.5, type: 'Bag', cogs: 5.08, transfer: 2.75 },
-            { id: 'spb-6', name: 'Spicy Beef 6oz Bag', flavor: 'Spicy Beef', size: 6, type: 'Bag', cogs: 6.70, transfer: 5.25 },
-            { id: 'spb-12', name: 'Spicy Beef 12oz Bag', flavor: 'Spicy Beef', size: 12, type: 'Bag', cogs: 10.03, transfer: 9.00 },
-            { id: 'spb-14', name: 'Spicy Beef 14oz Bag', flavor: 'Spicy Beef', size: 14, type: 'Bag', cogs: 10.36, transfer: 11.00 },
-            { id: 'spb-14t', name: 'Spicy Beef 14oz Tray', flavor: 'Spicy Beef', size: 14, type: 'Tray', cogs: 10.56, transfer: 11.00 },
             // Sweet+Spicy Beef
             { id: 'ssb-2.5', name: 'Sweet+Spicy Beef 2.5oz Bag', flavor: 'Sweet+Spicy Beef', size: 2.5, type: 'Bag', cogs: 5.05, transfer: 2.75 },
             { id: 'ssb-6', name: 'Sweet+Spicy Beef 6oz Bag', flavor: 'Sweet+Spicy Beef', size: 6, type: 'Bag', cogs: 6.58, transfer: 5.25 },
             { id: 'ssb-12', name: 'Sweet+Spicy Beef 12oz Bag', flavor: 'Sweet+Spicy Beef', size: 12, type: 'Bag', cogs: 10.03, transfer: 9.00 },
             { id: 'ssb-14', name: 'Sweet+Spicy Beef 14oz Bag', flavor: 'Sweet+Spicy Beef', size: 14, type: 'Bag', cogs: 10.11, transfer: 11.00 },
             { id: 'ssb-14t', name: 'Sweet+Spicy Beef 14oz Tray', flavor: 'Sweet+Spicy Beef', size: 14, type: 'Tray', cogs: 10.31, transfer: 11.00 },
-            // Grilled Pork / Island
-            { id: 'gp-2.5', name: 'Grilled Pork 2.5oz Bag', flavor: 'Grilled Pork', size: 2.5, type: 'Bag', cogs: 4.64, transfer: 2.75 },
-            { id: 'gp-6', name: 'Grilled Pork 6oz Bag', flavor: 'Grilled Pork', size: 6, type: 'Bag', cogs: 5.24, transfer: 5.25 },
-            { id: 'gp-12', name: 'Grilled Pork 12oz Bag', flavor: 'Grilled Pork', size: 12, type: 'Bag', cogs: 7.25, transfer: 9.00 },
-            { id: 'gp-14', name: 'Grilled Pork 14oz Bag', flavor: 'Grilled Pork', size: 14, type: 'Bag', cogs: 6.95, transfer: 9.25 },
-            { id: 'gp-14t', name: 'Grilled Pork 14oz Tray', flavor: 'Grilled Pork', size: 14, type: 'Tray', cogs: 7.15, transfer: 9.25 },
             // Grilled Spicy Pork
             { id: 'gsp-2.5', name: 'Grilled Spicy Pork 2.5oz Bag', flavor: 'Grilled Spicy Pork', size: 2.5, type: 'Bag', cogs: 4.50, transfer: 2.75 },
             { id: 'gsp-6', name: 'Grilled Spicy Pork 6oz Bag', flavor: 'Grilled Spicy Pork', size: 6, type: 'Bag', cogs: 5.28, transfer: 5.25 },
             { id: 'gsp-14', name: 'Grilled Spicy Pork 14oz Bag', flavor: 'Grilled Spicy Pork', size: 14, type: 'Bag', cogs: 6.98, transfer: 9.25 },
             { id: 'gsp-14t', name: 'Grilled Spicy Pork 14oz Tray', flavor: 'Grilled Spicy Pork', size: 14, type: 'Tray', cogs: 7.19, transfer: 9.25 },
-            // Grilled Beef
-            { id: 'gb-2.5', name: 'Grilled Beef 2.5oz Bag', flavor: 'Grilled Beef', size: 2.5, type: 'Bag', cogs: 5.03, transfer: 2.75 },
-            { id: 'gb-2.85', name: 'Grilled Beef 2.85oz Bag', flavor: 'Grilled Beef', size: 2.85, type: 'Bag', cogs: 5.19, transfer: 2.75 }
+            // Hunan Ham
+            { id: 'hh-2.5', name: 'Hunan Ham 2.5oz Bag', flavor: 'Hunan Ham', size: 2.5, type: 'Bag', cogs: 4.60, transfer: 2.75 },
+            { id: 'hh-6', name: 'Hunan Ham 6oz Bag', flavor: 'Hunan Ham', size: 6, type: 'Bag', cogs: 5.30, transfer: 5.25 },
+            { id: 'hh-14', name: 'Hunan Ham 14oz Bag', flavor: 'Hunan Ham', size: 14, type: 'Bag', cogs: 7.00, transfer: 9.25 },
+            // BBQ (Korean/Japanese)
+            { id: 'bbq-2.5', name: 'BBQ 2.5oz Bag', flavor: 'BBQ', size: 2.5, type: 'Bag', cogs: 5.10, transfer: 2.75 },
+            { id: 'bbq-6', name: 'BBQ 6oz Bag', flavor: 'BBQ', size: 6, type: 'Bag', cogs: 6.72, transfer: 5.25 },
+            { id: 'bbq-14', name: 'BBQ 14oz Bag', flavor: 'BBQ', size: 14, type: 'Bag', cogs: 10.35, transfer: 11.00 },
+            // Hickory
+            { id: 'hk-2.5', name: 'Hickory 2.5oz Bag', flavor: 'Hickory', size: 2.5, type: 'Bag', cogs: 5.08, transfer: 2.75 },
+            { id: 'hk-6', name: 'Hickory 6oz Bag', flavor: 'Hickory', size: 6, type: 'Bag', cogs: 6.70, transfer: 5.25 },
+            { id: 'hk-14', name: 'Hickory 14oz Bag', flavor: 'Hickory', size: 14, type: 'Bag', cogs: 10.40, transfer: 11.00 },
+            // Sweet Heat
+            { id: 'sht-2.5', name: 'Sweet Heat 2.5oz Bag', flavor: 'Sweet Heat', size: 2.5, type: 'Bag', cogs: 5.05, transfer: 2.75 },
+            { id: 'sht-6', name: 'Sweet Heat 6oz Bag', flavor: 'Sweet Heat', size: 6, type: 'Bag', cogs: 6.65, transfer: 5.25 },
+            { id: 'sht-14', name: 'Sweet Heat 14oz Bag', flavor: 'Sweet Heat', size: 14, type: 'Bag', cogs: 10.25, transfer: 11.00 },
+            // Chipotle Lime
+            { id: 'cl-2.5', name: 'Chipotle Lime 2.5oz Bag', flavor: 'Chipotle Lime', size: 2.5, type: 'Bag', cogs: 5.12, transfer: 2.75 },
+            { id: 'cl-6', name: 'Chipotle Lime 6oz Bag', flavor: 'Chipotle Lime', size: 6, type: 'Bag', cogs: 6.75, transfer: 5.25 },
+            { id: 'cl-14', name: 'Chipotle Lime 14oz Bag', flavor: 'Chipotle Lime', size: 14, type: 'Bag', cogs: 10.42, transfer: 11.00 },
+            // Zero Sugar Chipotle Lime
+            { id: 'zscl-2.5', name: 'Zero Sugar Chipotle Lime 2.5oz Bag', flavor: 'Zero Sugar Chipotle Lime', size: 2.5, type: 'Bag', cogs: 5.22, transfer: 2.75 },
+            { id: 'zscl-6', name: 'Zero Sugar Chipotle Lime 6oz Bag', flavor: 'Zero Sugar Chipotle Lime', size: 6, type: 'Bag', cogs: 6.88, transfer: 5.25 },
+            { id: 'zscl-14', name: 'Zero Sugar Chipotle Lime 14oz Bag', flavor: 'Zero Sugar Chipotle Lime', size: 14, type: 'Bag', cogs: 10.58, transfer: 11.00 }
         ];
 
         // Channel product selections (which products are enabled for each retailer)
@@ -1126,18 +1174,17 @@
         }
 
         // Calculate per-size metrics
-        function calculateSizeMetrics(laborPerLb, overheadPerLb, freightPerLb) {
+        // totalCost includes all costs (meat, packaging, labor, overhead, freight) as fixed per unit
+        function calculateSizeMetrics() {
             return PRODUCTS.map((p, i) => {
                 const lbPerUnit = p.size / 16;
-                const revenuePerUnit = p.transfer;
-                const nonLOFPerUnit = p.nonLOF;
 
-                // Revenue per lb = transfer price / (oz/16)
-                const revenuePerLb = revenuePerUnit / lbPerUnit;
+                // Revenue per lb = transfer price / lbs per unit
+                const revenuePerLb = p.transfer / lbPerUnit;
 
-                // Cost per lb = (nonLOF/unit) / (oz/16) + labor + overhead + freight
-                const nonLOFPerLb = nonLOFPerUnit / lbPerUnit;
-                const costPerLb = nonLOFPerLb + laborPerLb + overheadPerLb + freightPerLb;
+                // Cost per lb = total cost per unit / lbs per unit
+                // totalCost already includes all fixed costs (L/O/F)
+                const costPerLb = p.totalCost / lbPerUnit;
 
                 // Margin per lb
                 const marginPerLb = revenuePerLb - costPerLb;
@@ -1244,7 +1291,7 @@
             document.getElementById('avgUnitSize').textContent = avgUnitSize.toFixed(1) + ' oz';
 
             // Calculate and render per-size metrics
-            const sizeMetrics = calculateSizeMetrics(laborPerLb, overheadPerLb, freightPerLb);
+            const sizeMetrics = calculateSizeMetrics();
             renderMixTable(sizeMetrics);
             updateMixValidation();
 
