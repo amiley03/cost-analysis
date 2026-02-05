@@ -806,12 +806,12 @@
         // Configuration - CHANGE THIS PASSWORD
         const SITE_PASSWORD = 'bearbear2026';
 
-        // Baseline data from spreadsheet
+        // Baseline data from spreadsheet (2025 Costing Summary_3.xlsx, $ Per Unit 7yr sheet, 1 Yr Proj column)
         const BASELINE = {
             lbs: 638204.76,
-            laborAnnual: 261459,
-            overheadAnnual: 201853,
-            freightAnnual: 40894
+            laborAnnual: 865649,      // Total Labor 1 Yr Proj
+            overheadAnnual: 1428705,  // Other Costs 1 Yr Proj
+            freightAnnual: 158199     // Freight 1 Yr Proj
         };
 
         // Product sizes with their data - mixPct values are now editable via UI
@@ -835,19 +835,19 @@
         // Current mix percentages (editable, stored as 0-100 values)
         let currentMix = PRODUCTS.map(p => p.defaultMixPct);
 
-        // Products for transfer pricing
+        // Products for transfer pricing (COGS from 2025 Costing Summary_3.xlsx Combined sheet)
         const PRICING_PRODUCTS = [
-            { name: 'Original Beef 2.5oz Bag', size: 2.5, cogs: 2.12 },
-            { name: 'Original Beef 6oz Bag', size: 6, cogs: 4.58 },
-            { name: 'Original Beef 12oz Bag', size: 12, cogs: 8.47 },
-            { name: 'Original Beef 14oz Bag', size: 14, cogs: 9.82 },
-            { name: 'Original Beef 14oz Tray', size: 14, cogs: 10.12 },
-            { name: 'Sweet Beef 2.5oz Bag', size: 2.5, cogs: 2.18 },
-            { name: 'Sweet Beef 6oz Bag', size: 6, cogs: 4.72 },
-            { name: 'Sweet Beef 8oz Bag', size: 8, cogs: 6.15 },
-            { name: 'Sweet Beef 12oz Bag', size: 12, cogs: 8.72 },
-            { name: 'Sweet Beef 14oz Bag', size: 14, cogs: 10.08 },
-            { name: 'Sweet Beef 14oz Tray', size: 14, cogs: 10.38 }
+            { name: 'Original Beef 2.5oz Bag', size: 2.5, cogs: 5.08 },
+            { name: 'Original Beef 6oz Bag', size: 6, cogs: 6.70 },
+            { name: 'Original Beef 12oz Bag', size: 12, cogs: 10.22 },
+            { name: 'Original Beef 14oz Bag', size: 14, cogs: 10.43 },
+            { name: 'Original Beef 14oz Tray', size: 14, cogs: 10.64 },
+            { name: 'Sweet Beef 2.5oz Bag', size: 2.5, cogs: 5.03 },
+            { name: 'Sweet Beef 6oz Bag', size: 6, cogs: 8.36 },
+            { name: 'Sweet Beef 8oz Bag', size: 8, cogs: 7.56 },
+            { name: 'Sweet Beef 12oz Bag', size: 12, cogs: 10.03 },
+            { name: 'Sweet Beef 14oz Bag', size: 14, cogs: 10.11 },
+            { name: 'Sweet Beef 14oz Tray', size: 14, cogs: 10.31 }
         ];
 
         // Months with default 14oz multipliers
