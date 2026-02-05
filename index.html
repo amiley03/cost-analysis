@@ -564,10 +564,6 @@
                         <input type="number" id="annualLbs" class="editable" value="638205" onchange="recalculate()">
                     </div>
                     <div class="input-group">
-                        <label>14oz Tray Share %</label>
-                        <input type="number" id="trayShare" class="editable" value="0" min="0" max="100" onchange="recalculate()">
-                    </div>
-                    <div class="input-group">
                         <label>Labor Fixed %</label>
                         <input type="number" id="laborFixed" class="editable" value="30" min="0" max="100" onchange="recalculate()">
                     </div>
@@ -1047,7 +1043,6 @@
         // Main calculation
         function recalculate() {
             const annualLbs = parseFloat(document.getElementById('annualLbs').value) || 0;
-            const trayShare = parseFloat(document.getElementById('trayShare').value) / 100 || 0;
             const laborFixed = parseFloat(document.getElementById('laborFixed').value) / 100 || 0;
             const overheadFixed = parseFloat(document.getElementById('overheadFixed').value) / 100 || 0;
             const freightFixed = parseFloat(document.getElementById('freightFixed').value) / 100 || 0;
