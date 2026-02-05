@@ -597,11 +597,6 @@
             color: #4a9eff;
         }
 
-        /* Simplified monthly table */
-        .monthly-simple th, .monthly-simple td {
-            padding: 10px 12px;
-        }
-
         /* Product Selector Styles */
         .product-selector {
             margin-bottom: 20px;
@@ -834,30 +829,6 @@
                         <tbody id="mixTable">
                             <!-- Populated by JS -->
                         </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>Monthly Breakdown</h2>
-                <div class="table-container">
-                    <table class="monthly-simple">
-                        <thead>
-                            <tr>
-                                <th>Month</th>
-                                <th>Total Lbs</th>
-                                <th>Revenue</th>
-                                <th>Total Cost</th>
-                                <th>Gross Margin</th>
-                                <th>GM %</th>
-                            </tr>
-                        </thead>
-                        <tbody id="monthlyTable">
-                            <!-- Populated by JS -->
-                        </tbody>
-                        <tfoot id="monthlyTotals">
-                            <!-- Populated by JS -->
-                        </tfoot>
                     </table>
                 </div>
             </div>
@@ -1123,22 +1094,6 @@
             cvs: new Set(['ob-2.5', 'sb-2.5', 'gb-2.5'])              // Default: 2.5oz for convenience
         };
 
-        // Months with default 14oz multipliers
-        const MONTHS = [
-            { name: 'Jan', seasonality: 1/12, mult14: false },
-            { name: 'Feb', seasonality: 1/12, mult14: false },
-            { name: 'Mar', seasonality: 1/12, mult14: false },
-            { name: 'Apr', seasonality: 1/12, mult14: false },
-            { name: 'May', seasonality: 1/12, mult14: false },
-            { name: 'Jun', seasonality: 1/12, mult14: false },
-            { name: 'Jul', seasonality: 1/12, mult14: true },
-            { name: 'Aug', seasonality: 1/12, mult14: true },
-            { name: 'Sep', seasonality: 1/12, mult14: false },
-            { name: 'Oct', seasonality: 1/12, mult14: true },
-            { name: 'Nov', seasonality: 1/12, mult14: true },
-            { name: 'Dec', seasonality: 1/12, mult14: true }
-        ];
-
         // Login functions
         function login() {
             const pwd = document.getElementById('password').value;
@@ -1330,50 +1285,24 @@
             renderMixTable(sizeMetrics);
             updateMixValidation();
 
-            // Calculate monthly data using editable mix
+            // Calculate annual totals based on mix
+            let mixDenom = mixFractions.reduce((sum, m) => sum + m, 0);
+            if (mixDenom === 0) mixDenom = 1;
+
             let totalRevenue = 0;
             let totalCost = 0;
-            let totalGM = 0;
 
-            const monthlyData = MONTHS.map((month, i) => {
-                const monthLbs = annualLbs * month.seasonality;
+            PRODUCTS.forEach((p, idx) => {
+                const effectiveMix = mixFractions[idx];
+                const lbPerUnit = p.size / 16;
+                const unitLbs = (annualLbs / mixDenom) * effectiveMix;
+                const units = unitLbs / lbPerUnit;
 
-                // Calculate mix denominator (sum of mix fractions)
-                let mixDenom = mixFractions.reduce((sum, m) => sum + m, 0);
-                if (mixDenom === 0) mixDenom = 1;
-
-                // Calculate revenue and cost using totalCost per unit (consistent with Product Mix)
-                let revenue = 0;
-                let totalUnitCost = 0;
-
-                PRODUCTS.forEach((p, idx) => {
-                    const effectiveMix = mixFractions[idx];
-
-                    const lbPerUnit = p.size / 16;
-                    const unitLbs = (monthLbs / mixDenom) * effectiveMix;
-                    const units = unitLbs / lbPerUnit;
-
-                    revenue += units * p.transfer;
-                    totalUnitCost += units * p.totalCost;  // Use totalCost (includes all costs)
-                });
-
-                const totalMonthCost = totalUnitCost;
-                const grossMargin = revenue - totalMonthCost;
-                const gmPct = revenue > 0 ? grossMargin / revenue : 0;
-
-                totalRevenue += revenue;
-                totalCost += totalMonthCost;
-                totalGM += grossMargin;
-
-                return {
-                    name: month.name,
-                    lbs: monthLbs,
-                    revenue,
-                    cost: totalMonthCost,
-                    gm: grossMargin,
-                    gmPct
-                };
+                totalRevenue += units * p.transfer;
+                totalCost += units * p.totalCost;
             });
+
+            const totalGM = totalRevenue - totalCost;
 
             // Update summary metrics
             document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
@@ -1410,30 +1339,6 @@
                 meetsTargetEl.className = 'value negative';
             }
 
-            // Update monthly table (simplified - no variance column)
-            const tbody = document.getElementById('monthlyTable');
-            tbody.innerHTML = monthlyData.map((m, i) => `
-                <tr>
-                    <td>${m.name}</td>
-                    <td>${m.lbs.toLocaleString('en-US', {maximumFractionDigits: 0})}</td>
-                    <td>${formatCurrency(m.revenue)}</td>
-                    <td>${formatCurrency(m.cost)}</td>
-                    <td class="${m.gm >= 0 ? 'positive' : 'negative'}">${formatCurrency(m.gm)}</td>
-                    <td class="${m.gmPct >= 0.2 ? 'positive' : ''}">${formatPercent(m.gmPct)}</td>
-                </tr>
-            `).join('');
-
-            // Update totals row
-            document.getElementById('monthlyTotals').innerHTML = `
-                <tr style="font-weight: 600; border-top: 2px solid rgba(255,255,255,0.2);">
-                    <td>TOTAL</td>
-                    <td>${annualLbs.toLocaleString('en-US', {maximumFractionDigits: 0})}</td>
-                    <td>${formatCurrency(totalRevenue)}</td>
-                    <td>${formatCurrency(totalCost)}</td>
-                    <td class="${totalGM >= 0 ? 'positive' : 'negative'}">${formatCurrency(totalGM)}</td>
-                    <td>${formatPercent(overallGMPct)}</td>
-                </tr>
-            `;
         }
 
         // Group products by flavor for display
