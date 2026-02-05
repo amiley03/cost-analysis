@@ -1387,8 +1387,8 @@
             let bestSize = null;
             let bestMargin = -Infinity;
             sizeMetrics.forEach(m => {
-                if (m.mixPct > 0 && m.marginPerLb > bestMargin) {
-                    bestMargin = m.marginPerLb;
+                if (m.mixPct > 0 && m.marginPerUnit > bestMargin) {
+                    bestMargin = m.marginPerUnit;
                     bestSize = m.size;
                 }
             });
