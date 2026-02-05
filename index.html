@@ -1441,9 +1441,9 @@
                 let mixDenom = mixFractions.reduce((sum, m) => sum + m, 0);
                 if (mixDenom === 0) mixDenom = 1;
 
-                // Calculate revenue and non-LOF cost
+                // Calculate revenue and cost using totalCost per unit (consistent with Product Mix)
                 let revenue = 0;
-                let nonLOFCost = 0;
+                let totalUnitCost = 0;
 
                 PRODUCTS.forEach((p, idx) => {
                     const effectiveMix = mixFractions[idx];
@@ -1453,13 +1453,10 @@
                     const units = unitLbs / lbPerUnit;
 
                     revenue += units * p.transfer;
-                    nonLOFCost += units * p.nonLOF;
+                    totalUnitCost += units * p.totalCost;  // Use totalCost (includes all costs)
                 });
 
-                const laborCost = monthLbs * laborPerLb;
-                const overheadCost = monthLbs * overheadPerLb;
-                const freightCost = monthLbs * freightPerLb;
-                const totalMonthCost = nonLOFCost + laborCost + overheadCost + freightCost;
+                const totalMonthCost = totalUnitCost;
                 const grossMargin = revenue - totalMonthCost;
                 const gmPct = revenue > 0 ? grossMargin / revenue : 0;
 
