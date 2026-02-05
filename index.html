@@ -813,6 +813,16 @@
                                 </th>
                                 <th>
                                     <span class="tooltip-header">
+                                        Suggested Transfer
+                                        <span class="tooltip-icon">?</span>
+                                        <span class="tooltip-content">
+                                            Transfer price needed to achieve Target GM %.
+                                            <span class="tooltip-formula">Cost/Unit ÷ (1 − Target GM%)</span>
+                                        </span>
+                                    </span>
+                                </th>
+                                <th>
+                                    <span class="tooltip-header">
                                         Margin/Unit
                                         <span class="tooltip-icon">?</span>
                                         <span class="tooltip-content">
@@ -1297,7 +1307,7 @@
 
         // Calculate per-size metrics (all values per unit)
         // totalCost includes all costs (meat, packaging, labor, overhead, freight) as fixed per unit
-        function calculateSizeMetrics() {
+        function calculateSizeMetrics(targetGM) {
             return PRODUCTS.map((p, i) => {
                 // Revenue per unit = transfer price
                 const revenuePerUnit = p.transfer;
@@ -1311,13 +1321,17 @@
                 // Margin %
                 const marginPct = revenuePerUnit > 0 ? marginPerUnit / revenuePerUnit : 0;
 
+                // Suggested transfer to hit target GM%
+                const suggestedTransfer = targetGM > 0 ? costPerUnit / (1 - targetGM) : costPerUnit;
+
                 return {
                     size: p.size,
                     mixPct: currentMix[i],
                     revenuePerUnit,
                     costPerUnit,
                     marginPerUnit,
-                    marginPct
+                    marginPct,
+                    suggestedTransfer
                 };
             });
         }
@@ -1357,6 +1371,7 @@
                     </td>
                     <td>${formatCurrencyDecimal(m.revenuePerUnit)}</td>
                     <td>${formatCurrencyDecimal(m.costPerUnit)}</td>
+                    <td style="color: #22c55e;">${formatCurrencyDecimal(m.suggestedTransfer)}</td>
                     <td class="${m.marginPerUnit >= 0 ? 'positive' : 'negative'}">${formatCurrencyDecimal(m.marginPerUnit)}</td>
                     <td class="${m.marginPct >= 0 ? 'positive' : 'negative'}">${formatPercent(m.marginPct)}</td>
                 </tr>
@@ -1410,7 +1425,7 @@
             document.getElementById('avgUnitSize').textContent = avgUnitSize.toFixed(1) + ' oz';
 
             // Calculate and render per-size metrics
-            const sizeMetrics = calculateSizeMetrics();
+            const sizeMetrics = calculateSizeMetrics(targetGM);
             renderMixTable(sizeMetrics);
             updateMixValidation();
 
