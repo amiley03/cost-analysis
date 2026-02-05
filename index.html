@@ -397,6 +397,137 @@
                 display: none;
             }
         }
+
+        /* Product Mix Table Styles */
+        .mix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .mix-table th, .mix-table td {
+            padding: 10px 12px;
+            text-align: right;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .mix-table th {
+            color: #888;
+            font-weight: 500;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mix-table th:first-child, .mix-table td:first-child {
+            text-align: left;
+        }
+
+        .mix-table .mix-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mix-table input.mix-slider {
+            width: 80px;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .mix-table input.mix-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4a9eff 0%, #6366f1 100%);
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: transform 0.1s;
+        }
+
+        .mix-table input.mix-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .mix-table input.mix-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4a9eff 0%, #6366f1 100%);
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .mix-table .mix-value {
+            min-width: 45px;
+            text-align: right;
+            font-size: 13px;
+            color: #fff;
+        }
+
+        .mix-table tr.best-margin {
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .mix-table tr.best-margin td:first-child::after {
+            content: ' ★';
+            color: #22c55e;
+        }
+
+        .mix-validation {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+        }
+
+        .mix-total {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .mix-total.valid {
+            color: #22c55e;
+        }
+
+        .mix-total.invalid {
+            color: #fbbf24;
+        }
+
+        .normalize-btn {
+            padding: 6px 12px;
+            background: rgba(74, 158, 255, 0.2);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            border-radius: 4px;
+            color: #4a9eff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .normalize-btn:hover {
+            background: rgba(74, 158, 255, 0.3);
+        }
+
+        .best-size-indicator {
+            margin-left: auto;
+            font-size: 13px;
+            color: #22c55e;
+        }
+
+        /* Simplified monthly table */
+        .monthly-simple th, .monthly-simple td {
+            padding: 10px 12px;
+        }
     </style>
 </head>
 <body>
@@ -475,8 +606,8 @@
                         <div class="value" id="gmPercent">0%</div>
                     </div>
                     <div class="metric">
-                        <div class="label">GM$ Variance vs Baseline</div>
-                        <div class="value" id="varianceTotal">$0</div>
+                        <div class="label">Best Margin Size</div>
+                        <div class="value" id="bestSizeDisplay">-</div>
                     </div>
                     <div class="metric">
                         <div class="label">Meets Target GM?</div>
@@ -486,20 +617,44 @@
             </div>
 
             <div class="card">
-                <h2>Monthly Breakdown <span class="badge">Toggle 14oz Production</span></h2>
-                <p style="font-size: 13px; color: #888; margin-bottom: 16px;">Check boxes to enable 14oz production in each month. Default: Jul-Aug & Oct-Dec.</p>
+                <h2>Product Mix <span class="badge">Editable</span></h2>
+                <p style="font-size: 13px; color: #888; margin-bottom: 16px;">Adjust the mix percentage for each product size to see the impact on margins. Best margin size is highlighted with a star.</p>
+                <div class="mix-validation">
+                    <span class="mix-total" id="mixTotal">Total Mix: 100%</span>
+                    <button class="normalize-btn" onclick="normalizeMix()">Auto-Normalize to 100%</button>
+                    <span class="best-size-indicator" id="bestSizeIndicator">Best Size: --</span>
+                </div>
                 <div class="table-container">
-                    <table>
+                    <table class="mix-table">
+                        <thead>
+                            <tr>
+                                <th>Size (oz)</th>
+                                <th>Mix %</th>
+                                <th>Revenue/lb</th>
+                                <th>Cost/lb</th>
+                                <th>Margin/lb</th>
+                                <th>Margin %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mixTable">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Monthly Breakdown</h2>
+                <div class="table-container">
+                    <table class="monthly-simple">
                         <thead>
                             <tr>
                                 <th>Month</th>
-                                <th>14oz On</th>
                                 <th>Total Lbs</th>
                                 <th>Revenue</th>
                                 <th>Total Cost</th>
                                 <th>Gross Margin</th>
                                 <th>GM %</th>
-                                <th>Variance</th>
                             </tr>
                         </thead>
                         <tbody id="monthlyTable">
@@ -659,22 +814,26 @@
             freightAnnual: 40894
         };
 
-        // Product sizes with their data
+        // Product sizes with their data - mixPct values are now editable via UI
+        // Default mix percentages (converted to 0-100 scale for display)
         const PRODUCTS = [
-            { size: 1, mixPct: 0.001, transfer: 0.99, nonLOF: 0.56 },
-            { size: 1.5, mixPct: 0.001, transfer: 1.48, nonLOF: 0.84 },
-            { size: 2, mixPct: 0.002, transfer: 1.98, nonLOF: 1.11 },
-            { size: 2.5, mixPct: 0.15, transfer: 2.75, nonLOF: 1.49 },
-            { size: 2.75, mixPct: 0.001, transfer: 2.72, nonLOF: 1.53 },
-            { size: 2.85, mixPct: 0.001, transfer: 2.81, nonLOF: 1.59 },
-            { size: 5, mixPct: 0.001, transfer: 4.94, nonLOF: 2.79 },
-            { size: 6, mixPct: 0.25, transfer: 5.25, nonLOF: 3.11 },
-            { size: 8, mixPct: 0.05, transfer: 6.14, nonLOF: 4.17 },
-            { size: 9, mixPct: 0.001, transfer: 6.91, nonLOF: 4.69 },
-            { size: 12, mixPct: 0.20, transfer: 9.00, nonLOF: 6.64 },
-            { size: 14, mixPct: 0.30, transfer: 11.00, nonLOF: 6.85 },
-            { size: 16, mixPct: 0.04, transfer: 12.29, nonLOF: 8.34 }
+            { size: 1, defaultMixPct: 0.1, transfer: 0.99, nonLOF: 0.56 },
+            { size: 1.5, defaultMixPct: 0.1, transfer: 1.48, nonLOF: 0.84 },
+            { size: 2, defaultMixPct: 0.2, transfer: 1.98, nonLOF: 1.11 },
+            { size: 2.5, defaultMixPct: 15, transfer: 2.75, nonLOF: 1.49 },
+            { size: 2.75, defaultMixPct: 0.1, transfer: 2.72, nonLOF: 1.53 },
+            { size: 2.85, defaultMixPct: 0.1, transfer: 2.81, nonLOF: 1.59 },
+            { size: 5, defaultMixPct: 0.1, transfer: 4.94, nonLOF: 2.79 },
+            { size: 6, defaultMixPct: 25, transfer: 5.25, nonLOF: 3.11 },
+            { size: 8, defaultMixPct: 5, transfer: 6.14, nonLOF: 4.17 },
+            { size: 9, defaultMixPct: 0.1, transfer: 6.91, nonLOF: 4.69 },
+            { size: 12, defaultMixPct: 20, transfer: 9.00, nonLOF: 6.64 },
+            { size: 14, defaultMixPct: 30, transfer: 11.00, nonLOF: 6.85 },
+            { size: 16, defaultMixPct: 4, transfer: 12.29, nonLOF: 8.34 }
         ];
+
+        // Current mix percentages (editable, stored as 0-100 values)
+        let currentMix = PRODUCTS.map(p => p.defaultMixPct);
 
         // Products for transfer pricing
         const PRICING_PRODUCTS = [
@@ -765,6 +924,122 @@
             return (value * 100).toFixed(1) + '%';
         }
 
+        // Get current mix percentages from inputs
+        function getMixFromInputs() {
+            const inputs = document.querySelectorAll('.mix-input');
+            if (inputs.length === 0) return currentMix;
+            return Array.from(inputs).map(input => parseFloat(input.value) || 0);
+        }
+
+        // Update mix validation display
+        function updateMixValidation() {
+            const mix = getMixFromInputs();
+            const total = mix.reduce((sum, val) => sum + val, 0);
+            const totalEl = document.getElementById('mixTotal');
+
+            totalEl.textContent = `Total Mix: ${total.toFixed(1)}%`;
+            totalEl.className = 'mix-total ' + (Math.abs(total - 100) < 0.1 ? 'valid' : 'invalid');
+        }
+
+        // Normalize mix percentages to 100%
+        function normalizeMix() {
+            const mix = getMixFromInputs();
+            const total = mix.reduce((sum, val) => sum + val, 0);
+
+            if (total === 0) return;
+
+            const normalized = mix.map(val => (val / total) * 100);
+            currentMix = normalized;
+
+            // Update inputs
+            const inputs = document.querySelectorAll('.mix-input');
+            inputs.forEach((input, i) => {
+                input.value = normalized[i].toFixed(1);
+            });
+
+            updateMixValidation();
+            recalculate();
+        }
+
+        // Handle mix input change
+        function onMixChange(index, value) {
+            currentMix[index] = parseFloat(value) || 0;
+            updateMixValidation();
+            recalculate();
+        }
+
+        // Calculate per-size metrics
+        function calculateSizeMetrics(laborPerLb, overheadPerLb, freightPerLb) {
+            return PRODUCTS.map((p, i) => {
+                const lbPerUnit = p.size / 16;
+                const revenuePerUnit = p.transfer;
+                const nonLOFPerUnit = p.nonLOF;
+
+                // Revenue per lb = transfer price / (oz/16)
+                const revenuePerLb = revenuePerUnit / lbPerUnit;
+
+                // Cost per lb = (nonLOF/unit) / (oz/16) + labor + overhead + freight
+                const nonLOFPerLb = nonLOFPerUnit / lbPerUnit;
+                const costPerLb = nonLOFPerLb + laborPerLb + overheadPerLb + freightPerLb;
+
+                // Margin per lb
+                const marginPerLb = revenuePerLb - costPerLb;
+
+                // Margin %
+                const marginPct = revenuePerLb > 0 ? marginPerLb / revenuePerLb : 0;
+
+                return {
+                    size: p.size,
+                    mixPct: currentMix[i],
+                    revenuePerLb,
+                    costPerLb,
+                    marginPerLb,
+                    marginPct
+                };
+            });
+        }
+
+        // Render product mix table
+        function renderMixTable(sizeMetrics) {
+            const tbody = document.getElementById('mixTable');
+
+            // Find best margin size (among sizes with non-zero mix)
+            let bestMarginSize = null;
+            let bestMarginValue = -Infinity;
+            sizeMetrics.forEach(m => {
+                if (m.mixPct > 0 && m.marginPerLb > bestMarginValue) {
+                    bestMarginValue = m.marginPerLb;
+                    bestMarginSize = m.size;
+                }
+            });
+
+            // Update best size indicator
+            const bestIndicator = document.getElementById('bestSizeIndicator');
+            if (bestMarginSize !== null) {
+                bestIndicator.textContent = `Best Size: ${bestMarginSize}oz ($${bestMarginValue.toFixed(2)}/lb margin)`;
+            } else {
+                bestIndicator.textContent = 'Best Size: --';
+            }
+
+            tbody.innerHTML = sizeMetrics.map((m, i) => `
+                <tr class="${m.size === bestMarginSize ? 'best-margin' : ''}">
+                    <td>${m.size}oz</td>
+                    <td>
+                        <div class="mix-slider-container">
+                            <input type="range" class="mix-slider" value="${m.mixPct}"
+                                   min="0" max="50" step="0.5"
+                                   oninput="onMixChange(${i}, this.value)">
+                            <span class="mix-value">${m.mixPct.toFixed(1)}%</span>
+                        </div>
+                    </td>
+                    <td>${formatCurrencyDecimal(m.revenuePerLb)}</td>
+                    <td>${formatCurrencyDecimal(m.costPerLb)}</td>
+                    <td class="${m.marginPerLb >= 0 ? 'positive' : 'negative'}">${formatCurrencyDecimal(m.marginPerLb)}</td>
+                    <td class="${m.marginPct >= 0.2 ? 'positive' : ''}">${formatPercent(m.marginPct)}</td>
+                </tr>
+            `).join('');
+        }
+
         // Main calculation
         function recalculate() {
             const annualLbs = parseFloat(document.getElementById('annualLbs').value) || 0;
@@ -791,41 +1066,33 @@
             document.getElementById('overheadPerLb').textContent = formatCurrencyDecimal(overheadPerLb);
             document.getElementById('freightPerLb').textContent = formatCurrencyDecimal(freightPerLb);
 
-            // Get month toggles
-            const monthToggles = [];
-            document.querySelectorAll('.month-checkbox').forEach((cb, i) => {
-                monthToggles[i] = cb.checked;
-            });
+            // Get current mix from inputs (as decimal fractions)
+            const mix = getMixFromInputs();
+            const mixFractions = mix.map(m => m / 100);
 
-            // Calculate monthly data
+            // Calculate and render per-size metrics
+            const sizeMetrics = calculateSizeMetrics(laborPerLb, overheadPerLb, freightPerLb);
+            renderMixTable(sizeMetrics);
+            updateMixValidation();
+
+            // Calculate monthly data using editable mix
             let totalRevenue = 0;
             let totalCost = 0;
             let totalGM = 0;
-            let totalBaselineGM = 0;
 
             const monthlyData = MONTHS.map((month, i) => {
-                const mult14 = monthToggles.length > 0 ? monthToggles[i] : month.mult14;
                 const monthLbs = annualLbs * month.seasonality;
 
-                // Calculate mix denominator (sum of mix% adjusted for 14oz)
-                let mixDenom = PRODUCTS.reduce((sum, p) => {
-                    if (p.size === 14) {
-                        return sum + (mult14 ? p.mixPct : 0);
-                    }
-                    return sum + p.mixPct;
-                }, 0);
-
+                // Calculate mix denominator (sum of mix fractions)
+                let mixDenom = mixFractions.reduce((sum, m) => sum + m, 0);
                 if (mixDenom === 0) mixDenom = 1;
 
                 // Calculate revenue and non-LOF cost
                 let revenue = 0;
                 let nonLOFCost = 0;
 
-                PRODUCTS.forEach(p => {
-                    let effectiveMix = p.mixPct;
-                    if (p.size === 14 && !mult14) {
-                        effectiveMix = 0;
-                    }
+                PRODUCTS.forEach((p, idx) => {
+                    const effectiveMix = mixFractions[idx];
 
                     const lbPerUnit = p.size / 16;
                     const unitLbs = (monthLbs / mixDenom) * effectiveMix;
@@ -842,40 +1109,17 @@
                 const grossMargin = revenue - totalMonthCost;
                 const gmPct = revenue > 0 ? grossMargin / revenue : 0;
 
-                // Baseline calculation (14oz always on)
-                let baselineMixDenom = PRODUCTS.reduce((sum, p) => sum + p.mixPct, 0);
-                if (baselineMixDenom === 0) baselineMixDenom = 1;
-
-                let baselineRevenue = 0;
-                let baselineNonLOFCost = 0;
-
-                PRODUCTS.forEach(p => {
-                    const lbPerUnit = p.size / 16;
-                    const unitLbs = (monthLbs / baselineMixDenom) * p.mixPct;
-                    const units = unitLbs / lbPerUnit;
-
-                    baselineRevenue += units * p.transfer;
-                    baselineNonLOFCost += units * p.nonLOF;
-                });
-
-                const baselineTotalCost = baselineNonLOFCost + laborCost + overheadCost + freightCost;
-                const baselineGM = baselineRevenue - baselineTotalCost;
-                const variance = grossMargin - baselineGM;
-
                 totalRevenue += revenue;
                 totalCost += totalMonthCost;
                 totalGM += grossMargin;
-                totalBaselineGM += baselineGM;
 
                 return {
                     name: month.name,
-                    mult14,
                     lbs: monthLbs,
                     revenue,
                     cost: totalMonthCost,
                     gm: grossMargin,
-                    gmPct,
-                    variance
+                    gmPct
                 };
             });
 
@@ -887,10 +1131,20 @@
             const overallGMPct = totalRevenue > 0 ? totalGM / totalRevenue : 0;
             document.getElementById('gmPercent').textContent = formatPercent(overallGMPct);
 
-            const totalVariance = totalGM - totalBaselineGM;
-            const varianceEl = document.getElementById('varianceTotal');
-            varianceEl.textContent = formatCurrency(totalVariance);
-            varianceEl.className = 'value ' + (totalVariance >= 0 ? 'positive' : 'negative');
+            // Find best size for indicator
+            let bestSize = null;
+            let bestMargin = -Infinity;
+            sizeMetrics.forEach(m => {
+                if (m.mixPct > 0 && m.marginPerLb > bestMargin) {
+                    bestMargin = m.marginPerLb;
+                    bestSize = m.size;
+                }
+            });
+            const bestSizeEl = document.getElementById('bestSizeDisplay');
+            if (bestSizeEl) {
+                bestSizeEl.textContent = bestSize ? `${bestSize}oz` : '-';
+                bestSizeEl.className = 'value positive';
+            }
 
             const meetsTargetEl = document.getElementById('meetsTarget');
             if (targetGM === 0) {
@@ -904,20 +1158,16 @@
                 meetsTargetEl.className = 'value negative';
             }
 
-            // Update monthly table
+            // Update monthly table (simplified - no variance column)
             const tbody = document.getElementById('monthlyTable');
             tbody.innerHTML = monthlyData.map((m, i) => `
                 <tr>
                     <td>${m.name}</td>
-                    <td class="month-toggle">
-                        <input type="checkbox" class="month-checkbox" ${m.mult14 ? 'checked' : ''} onchange="recalculate()">
-                    </td>
                     <td>${m.lbs.toLocaleString('en-US', {maximumFractionDigits: 0})}</td>
                     <td>${formatCurrency(m.revenue)}</td>
                     <td>${formatCurrency(m.cost)}</td>
                     <td class="${m.gm >= 0 ? 'positive' : 'negative'}">${formatCurrency(m.gm)}</td>
                     <td class="${m.gmPct >= 0.2 ? 'positive' : ''}">${formatPercent(m.gmPct)}</td>
-                    <td class="${m.variance >= 0 ? 'positive' : 'negative'}">${formatCurrency(m.variance)}</td>
                 </tr>
             `).join('');
 
@@ -925,13 +1175,11 @@
             document.getElementById('monthlyTotals').innerHTML = `
                 <tr style="font-weight: 600; border-top: 2px solid rgba(255,255,255,0.2);">
                     <td>TOTAL</td>
-                    <td></td>
                     <td>${annualLbs.toLocaleString('en-US', {maximumFractionDigits: 0})}</td>
                     <td>${formatCurrency(totalRevenue)}</td>
                     <td>${formatCurrency(totalCost)}</td>
                     <td class="${totalGM >= 0 ? 'positive' : 'negative'}">${formatCurrency(totalGM)}</td>
                     <td>${formatPercent(overallGMPct)}</td>
-                    <td class="${totalVariance >= 0 ? 'positive' : 'negative'}">${formatCurrency(totalVariance)}</td>
                 </tr>
             `;
         }
